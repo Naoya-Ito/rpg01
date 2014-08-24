@@ -1,8 +1,9 @@
 #import "rpg01HeroNode.h"
 
-const CGFloat HERO_HEIGHT = 56.0f;
+const CGFloat HERO_HEIGHT = 45.0f;
 const CGFloat HERO_WEIGHT = 32.0f;
 
+const CGFloat HERO_IMAGE_NUM = 1;
 
 @implementation rpg01HeroNode
 
@@ -15,6 +16,9 @@ const CGFloat HERO_WEIGHT = 32.0f;
     hero.physicsBody.contactTestBitMask = enemyCategory | worldCategory | doorCategory | sisterCategory;
     hero.physicsBody.collisionBitMask = worldCategory;
     hero.physicsBody.allowsRotation = NO;
+    hero.physicsBody.friction = 0.7;
+    hero.physicsBody.linearDamping = 0.6;
+    hero.physicsBody.usesPreciseCollisionDetection = YES;
     return hero;
 }
 
@@ -28,7 +32,7 @@ const CGFloat HERO_WEIGHT = 32.0f;
 - (NSMutableArray *)readTextures:(NSString *)name{
     NSMutableArray *textures = @[].mutableCopy;
     SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"hero"];
-    for( int i=0; i < 2; i++){
+    for( int i=0; i < HERO_IMAGE_NUM; i++){
         SKTexture *texture = [atlas textureNamed:[NSString stringWithFormat:@"%@%d", name, i]];
         [textures addObject:texture];
     }

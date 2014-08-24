@@ -41,6 +41,8 @@ const int QUESTION_IMPORTANT = 2;
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
 //    [self messageNode].hidden = NO;
+    
+    [self setPeople];
 }
 
 - (SKMessageNode *)messageNode {
@@ -112,6 +114,7 @@ const int QUESTION_IMPORTANT = 2;
         switch (buttonIndex) {
             // 名乗る名前などない
             case 0:
+                _LV += 1;
                 _HP += 3;
                 _def += 1;
                 _int += 1;
@@ -169,6 +172,7 @@ const int QUESTION_IMPORTANT = 2;
                 break;
             case 4:             // 遊び人
                 _job = @"遊び人";
+                _gold += 7;
                 _story = 14;
                 break;
         }
@@ -259,7 +263,7 @@ const int QUESTION_IMPORTANT = 2;
                                                             message:@"あんたの職業を聞かせてくれ？"
                                                            delegate:self
                                                   cancelButtonTitle:nil
-                                                  otherButtonTitles:@"勇者だぜ。", @"戦士だよ。", @"魔法使いです", @"盗賊だ。",@"遊び人っす。", nil];
+                                                  otherButtonTitles:@"勇者だぜ", @"戦士だよ", @"魔法使いです", @"盗賊だ",@"遊び人っす", nil];
         alertView.tag = QUESTION_JOB;
         [alertView show];
         _story = 10;

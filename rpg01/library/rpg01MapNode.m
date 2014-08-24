@@ -34,15 +34,26 @@ const uint32_t characterCategory = 0x1 << 1;
             for (int j = 0; j < cols.count; j++) {
                 NSString *col = cols[j];
                 SKSpriteNode *tileSprite;
-                if ([col isEqualToString:@"1"]){
-                     tileSprite = [SKSpriteNode spriteNodeWithColor:[UIColor grayColor] size:CGSizeMake(TILE_SIZE, TILE_SIZE)];
-                } else if ([col isEqualToString:@"2"]){
-                    tileSprite = [SKSpriteNode spriteNodeWithImageNamed:@"yuka_shop"];
-                } else if ([col isEqualToString:@"0"]){
+                
+                if ([col isEqualToString:@"x"]) continue;
+                
+                if ([col isEqualToString:@"0"]){
                     tileSprite = [SKSpriteNode spriteNodeWithImageNamed:@"yuka"];
                     tileSprite.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
                     tileSprite.physicsBody.dynamic = NO;
                     tileSprite.physicsBody.categoryBitMask = worldCategory;
+                    tileSprite.physicsBody.collisionBitMask = heroCategory;
+                    tileSprite.physicsBody.usesPreciseCollisionDetection = YES;
+                } else if ([col isEqualToString:@"1"]){
+                     tileSprite = [SKSpriteNode spriteNodeWithColor:[UIColor grayColor] size:CGSizeMake(TILE_SIZE, TILE_SIZE)];
+                } else if ([col isEqualToString:@"2"]){
+                    tileSprite = [SKSpriteNode spriteNodeWithImageNamed:@"yuka_shop"];
+                } else if ([col isEqualToString:@"3"]){
+                    tileSprite = [SKSpriteNode spriteNodeWithImageNamed:@"house"];
+                    tileSprite.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
+                    tileSprite.physicsBody.dynamic = NO;
+                    tileSprite.physicsBody.categoryBitMask = houseCategory;
+                    tileSprite.physicsBody.usesPreciseCollisionDetection = YES;
                 } else {
                     NSLog(@"invalid col, %@", col);
                 }

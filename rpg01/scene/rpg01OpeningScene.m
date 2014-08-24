@@ -87,8 +87,11 @@
     } else if ([nodeAtPoint.name isEqualToString:FIRE_NAME]){
         NSMutableDictionary *params;
         params = [@{@"name": @"ikemen",
-                    @"nickname": @"テスト戦士イケメン",                
+                    @"nickname": @"テスト戦士イケメン",
+                    @"LV" : @"1",
+                    @"gold" : @"10000",
                     @"HP" : @"23",
+                    @"currentHP" : @"23",
                     @"MP" : @"12",
                     @"str" : @"5",
                     @"def" : @"5",
@@ -101,7 +104,10 @@
         NSMutableDictionary *params;
         params = [@{@"name": @"ikemen",
                     @"nickname": @"テスト戦士イケメン",
+                    @"LV" : @"1",
+                    @"gold" : @"10000",
                     @"HP" : @"32",
+                    @"currentHP" : @"32",
                     @"MP" : @"34",
                     @"str" : @"12",
                     @"def" : @"13",
@@ -114,7 +120,10 @@
         NSMutableDictionary *params;
         params = [@{@"name": @"ikemen",
                     @"nickname": @"テスト戦士イケメン",
+                    @"LV" : @"1",
+                    @"gold" : @"10000",
                     @"HP" : @"100",
+                    @"currentHP" : @"100",
                     @"MP" : @"150",
                     @"gold" : @"10000",
                     @"str" : @"32",
@@ -128,7 +137,10 @@
         NSMutableDictionary *params;
         params = [@{@"name": @"ikemen",
                     @"nickname": @"テスト戦士イケメン",
+                    @"LV" : @"1",
+                    @"gold" : @"100",
                     @"HP" : @"100",
+                    @"currentHP" : @"100",
                     @"MP" : @"150",
                     @"str" : @"32",
                     @"def" : @"15",

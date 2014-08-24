@@ -16,6 +16,9 @@
     
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
+
+    [self addStatusFrame];
+    [self setPeople];
 }
 
 - (SKMessageNode *)messageNode {
@@ -26,11 +29,11 @@
     if([_params[@"story"] isEqualToString:@"1-crear"]){
         _params[@"story"] = @"2-00";
     } else if([_params[@"story"] isEqualToString:@"2-00"]){
-//        _params[@"story"] = @"2-start";
-//        [self loadSceneWithParam:@"play" params:_params];
+        _params[@"story"] = @"b4";
+        [self loadSceneWithParam:@"field" params:_params];
         
-        _params[@"story"] = @"end";
-        [self loadSceneWithParam:@"opening" params:_params];
+//        _params[@"story"] = @"end";
+//        [self loadSceneWithParam:@"opening" params:_params];
     } else if([_params[@"story"] isEqualToString:@"end"]){
         [self loadSceneWithParam:@"opening" params:_params];
     }
@@ -40,7 +43,7 @@
     if([_params[@"story"] isEqualToString:@"1-crear"]){
         [self messageNode].message = @"まさか半日で試練をクリアするとはな……やるじゃねえか。";
     } else if([_params[@"story"] isEqualToString:@"2-00"]){
-        [self messageNode].message = @"次はダンジョンの5階を目指すんだな";
+        [self messageNode].message = @"次はダンジョンの10階を目指すんだな";
     } else if([_params[@"story"] isEqualToString:@"2-crear"]){
         [self messageNode].message = @"やるじゃねえか。続きはまだ作成中なのでタイトル画面に戻りな";
         _params[@"story"] = @"end";

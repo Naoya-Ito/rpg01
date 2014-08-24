@@ -4,7 +4,6 @@
 #import "SKMessageNode.h"
 #import "rpg01SlimeNode.h"
 #import "rpg01DoorNode.h"
-#import "rpg01SisterNode.h"
 
 const int DOOR_TAG = 0;
 const int HEAL_TAG = 1;
@@ -34,23 +33,17 @@ const int HEAL_TAG = 1;
     [self addChild:message];
     
     SKSpriteNode * door = [rpg01DoorNode door];
-    door.position = CGPointMake(TILE_SIZE * 2, self.frame.size.height - TILE_SIZE*2);
+    door.position = CGPointMake(TILE_SIZE*2.5, self.frame.size.height - TILE_SIZE*3);
     [self addChild:door];
-    
-    rpg01SisterNode *sister = [rpg01SisterNode sister];
-    sister.position = CGPointMake(TILE_SIZE*8, self.frame.size.height - TILE_SIZE * 1);
-    sister.name = SISTER_NAME;
-    [self addChild:sister];
-    
-    rpg01SlimeNode *enemy = [rpg01SlimeNode slime];
-    enemy.position = CGPointMake(200.0f, 300.0f);
-    enemy.name = ENEMY_NAME;
-    [self addChild:enemy];
-    [enemy slimeAnimation];
-    
+
+    [self setPeople];
     self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
     self.physicsWorld.contactDelegate = self;
     self.physicsBody.categoryBitMask = worldCategory;
+    self.physicsBody.collisionBitMask = heroCategory;
+    self.physicsBody.usesPreciseCollisionDetection = YES;
+    
+    [self addStatusFrame];
 }
 
 - (SKMessageNode *)messageNode {
@@ -159,10 +152,15 @@ const int HEAL_TAG = 1;
         }
     }
     
+    CGVector vector = CGVectorMake( (locaiton.x - hero.position.x)/30 , (locaiton.y - hero.position.y)/30);
+    [hero.physicsBody applyImpulse:vector];
+
+    /*
     SKAction *move = [SKAction moveTo:CGPointMake(locaiton.x, y) duration:duration];
     [hero runAction:move completion:^{
         [hero stop];
     }];
+     */
 }
 
 

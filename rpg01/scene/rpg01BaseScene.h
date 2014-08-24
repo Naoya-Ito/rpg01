@@ -13,4 +13,7 @@
 - (void)loadScene:(NSString *)name;
 - (void)loadSceneWithParam:(NSString *)name params:(NSMutableDictionary *)params;
 - (void)loadSceneToDone:(NSMutableDictionary *)params;
+- (void)addStatusFrame;
+- (void)setPeople;
+- (void)addController:(CGFloat)_base_height;
 @end

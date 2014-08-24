@@ -5,6 +5,7 @@
 #import "rpg01SlimeNode.h"
 #import "rpg01SkeltonNode.h"
 #import "rpg01FireNode.h"
+#import "rpg01DoorNode.h"
 
 #import "rpg01MapNode.h"
 
@@ -14,6 +15,8 @@ static inline CGFloat skRandf() {
 static inline CGFloat skRand(CGFloat low, CGFloat high) {
     return skRandf() * (high - low) + low;
 }
+
+const int FIRE_COST = 5;
 
 @interface rpg01PlayScene () <SKPhysicsContactDelegate>
 @end
@@ -29,12 +32,15 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
     int _skelton;
     int _score;
     int _hp;
+    int _MAXHP;
     int _mp;
+    int _MAXMP;
     int _str;
     int _def;
     int _int;
     NSString *_direction;
     NSString *_weaponType;
+    BOOL _doorFlag;
     BOOL _clearFlag;
     double _base_height;
 }
@@ -48,12 +54,16 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
     _skelton = 0;
     _boxes = 0;
     _score = 0;
+    _doorFlag = NO;
     _clearFlag = NO;
     _weaponType = @"sword";
     _base_height = self.size.height*0.2f;
+    _direction = @"right";
     
-    _hp = [_params[@"HP"] intValue];
+    _hp = [_params[@"currentHP"] intValue];
+    _MAXHP = [_params[@"HP"] intValue];
     _mp = [_params[@"MP"] intValue];
+    _MAXMP = [_params[@"MP"] intValue];
     _str = [_params[@"str"] intValue];
     _def = [_params[@"def"] intValue];
     _int = [_params[@"int"] intValue];
@@ -62,67 +72,42 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
     self.physicsWorld.contactDelegate = self;
     self.physicsBody.categoryBitMask = worldCategory;
     
+    
+    rpg01HeroNode *hero = [rpg01HeroNode hero];
+    [self _addHero:CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height)];
+
     if([_params[@"story"] isEqualToString:@"b1"]){
         [self createB1Stage];
     } else if([_params[@"story"] isEqualToString:@"b2"]){
         [self createB2Stage];
     } else if([_params[@"story"] isEqualToString:@"b3"]){
         [self createB3Stage];
+    } else if([_params[@"story"] isEqualToString:@"b4"]){
+        [self createB4Stage];
     }
-    [self _addLabels];
-
-    [self addController];
-}
-
-- (void)addController{
-    CGRect rect = CGRectMake(CGRectGetMidX(self.frame), _base_height/2, self.frame.size.width, _base_height);
-    SKSpriteNode *square = [SKSpriteNode spriteNodeWithColor:[UIColor blueColor] size:rect.size];
-    square.position = rect.origin;
-    square.name = @"controller";
-    square.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:rect.size];
-    square.physicsBody.affectedByGravity = NO;
-    square.physicsBody.allowsRotation = NO;
-    square.physicsBody.dynamic = NO;
-    square.physicsBody.categoryBitMask = worldCategory;
-    square.physicsBody.contactTestBitMask = 0;
-    square.physicsBody.collisionBitMask = heroCategory | enemyCategory;
-    [self addChild:square];
-
-    SKSpriteNode *fireButton = [SKSpriteNode spriteNodeWithImageNamed:@"fireButton"];
-    fireButton.position = CGPointMake( 50, 80.0);
-    fireButton.name = @"fireButton";
-    [self addChild:fireButton];
     
-    SKSpriteNode *attackButton = [SKSpriteNode spriteNodeWithImageNamed:@"swordButton"];
-    attackButton.position = CGPointMake( self.frame.size.width - 80, 80.0);
-    attackButton.name = @"attackButton";
-    [self addChild:attackButton];
-    
+    [self addStatusFrame];
+    [self addController:_base_height];
 }
 
 - (void)createB1Stage{
-    rpg01HeroNode *hero = [rpg01HeroNode hero];
-    [self _addHero:CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height)];
-    
     rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b1" base_height:_base_height];
     [self addChild:map];
 }
 
 - (void)createB2Stage{
-    rpg01HeroNode *hero = [rpg01HeroNode hero];
-    [self _addHero:CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height)];
-    
     rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b2" base_height:_base_height];
     [self addChild:map];
 }
 
 - (void)createB3Stage{
-    rpg01HeroNode *hero = [rpg01HeroNode hero];
-    [self _addHero:CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height)];
-
     rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b3" base_height:_base_height];
     [self addChild:map];
+}
 
+- (void)createB4Stage{
+    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b4" base_height:_base_height];
+    [self addChild:map];
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -132,18 +117,24 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
 
     if ([nodeAtPoint.name isEqualToString:@"attackButton" ]) {
         rpg01HeroNode *hero = (rpg01HeroNode *)[self childNodeWithName:HERO_NAME];
+        _direction = @"up";
+        [hero walkUp];
         [hero attack];
         [self _swordAttack:hero.position];
     } else if ([nodeAtPoint.name isEqualToString:@"fireButton" ]) {
         rpg01HeroNode *hero = (rpg01HeroNode *)[self childNodeWithName:HERO_NAME];
+        _direction = @"up";
+        [hero walkUp];
         [self _addFire:hero.position];
     } else if ([nodeAtPoint.name isEqualToString:@"controller" ]) {
         return;
     } else {
         if ([nodeAtPoint.name isEqualToString:HERO_NAME ]) {
+/*
             rpg01HeroNode *hero = (rpg01HeroNode *)nodeAtPoint;
             [hero attack];
             [self _swordAttack:nodeAtPoint.position];
+ */
         } else {
             [self _moveHero:locaiton];
         }
@@ -219,8 +210,11 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
             [hero walkUp];
         }
     }
-    
-    SKAction *move = [SKAction moveTo:CGPointMake(locaiton.x, y) duration:duration];
+    /*
+    CGVector vector = CGVectorMake( (locaiton.x - hero.position.x)/30 , (locaiton.y - hero.position.y)/30);
+    [hero.physicsBody applyImpulse:vector];
+    */
+    SKAction *move = [SKAction moveTo:CGPointMake(locaiton.x, hero.position.y) duration:duration];
     [hero runAction:move completion:^{
         [hero stop];
     }];
@@ -233,13 +227,23 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
 }
 
 // 敵を追加する
-- (void)_addEnemy{
+- (void)_addEnemySlime{
     _enemies++;
     rpg01SlimeNode *enemy = [rpg01SlimeNode slime];
     enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
     enemy.name = ENEMY_NAME;
     [self addChild:enemy];
     [enemy slimeAnimation];
+    [enemy moveSlime];
+}
+
+- (void)_addEnemyGreenSlime{
+    _enemies++;
+    rpg01SlimeNode *enemy = [rpg01SlimeNode greenSlime];
+    enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
+    enemy.name = ENEMY_NAME;
+    [self addChild:enemy];
+    [enemy greenSlimeAnimation];
     [enemy moveSlime];
 }
 
@@ -275,16 +279,34 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
 }
 
 - (void)_addFire:(CGPoint)from{
+
+    if(_mp < FIRE_COST){
+        return;
+    }
     // 炎は三つまで　処理重いんだよね
     _fires++;
     if(_fires > 3){
         _fires = 3;
         return;
     }
+    [self _changeMP: - FIRE_COST];
+    
     rpg01FireNode *fire = [rpg01FireNode fire:from];
     [self addChild:fire];
+
+    CGPoint target;
+    if([_direction isEqualToString:@"up"]){
+        target = CGPointMake(from.x, from.y + 180.0f);
+    } else if ([_direction isEqualToString:@"down"]){
+        target = CGPointMake(from.x, from.y - 180.0f);
+    } else if ([_direction isEqualToString:@"right"]){
+        target = CGPointMake(from.x + 180.0f, from.y);
+    } else if ([_direction isEqualToString:@"left"]){
+        target = CGPointMake(from.x - 180.0f, from.y);
+    }
+    SKAction *move = [SKAction moveTo:target duration:1.0f];
     
-    SKAction *move = [fire fireShot:from direction:_direction];
+//    SKAction *move = [SKAction moveTo:target duration:3.0f];
     [fire runAction:move completion:^{
         SKAction *fadeOut = [SKAction fadeOutWithDuration:0.3f];
         SKAction *remove = [SKAction removeFromParent];
@@ -292,47 +314,6 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         [fire runAction:sequence];
         _fires--;
     }];
-}
-
-- (void)_addLabels {
-    [self _addHPLabel];
-    [self _addTimeLabel];
-    [self _addScoreLabel];
-}
-
-- (void)_addHPLabel{
-    SKLabelNode *hpLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-    hpLabel.name = HP_NAME;
-    hpLabel.fontColor = [SKColor blackColor];
-    hpLabel.verticalAlignmentMode = SKLabelVerticalAlignmentModeTop;
-    hpLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
-    hpLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - 20.0f);
-    hpLabel.fontSize = 14.0f;
-    [self addChild:hpLabel];
-    [self _changeHP:0];
-}
-
-- (void)_addTimeLabel{
-    SKLabelNode *timeLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-    timeLabel.name = TIME_NAME;
-    timeLabel.fontColor = [SKColor blackColor];
-    timeLabel.verticalAlignmentMode = SKLabelVerticalAlignmentModeTop;
-    timeLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
-    timeLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - 40.0f);
-    timeLabel.fontSize = 14.0f;
-    [self addChild:timeLabel];
-}
-
-- (void)_addScoreLabel{
-    SKLabelNode *scoreLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-    scoreLabel.name = SCORE_NAME;
-    scoreLabel.fontColor = [SKColor blackColor];
-    scoreLabel.verticalAlignmentMode = SKLabelVerticalAlignmentModeTop;
-    scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeRight;
-    scoreLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - scoreLabel.frame.size.width - 5.0f, CGRectGetMaxY(self.frame) - 20.0f);
-    scoreLabel.fontSize = 14.0f;
-    [self addChild:scoreLabel];
-    [self _score:0];
 }
 
 - (void)_score:(int)score {
@@ -344,16 +325,19 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
 - (void)_changeHP:(int)point {
     _hp += point;
     SKLabelNode *hpLabel = (SKLabelNode *)[self childNodeWithName:HP_NAME];
-    
-    // debug
-    int str = [_params[@"str"] intValue];
-    int def = [_params[@"def"] intValue];
-    
-    hpLabel.text = [NSString stringWithFormat:@"HP : %03d MP: %03d str : %d  def : %d", _hp, _mp, str, def];
-    
+    hpLabel.text = [NSString stringWithFormat:@"HP : %03d / %03d", _hp, _MAXHP];
     if(_hp <= 0){
         [self _dead];
     }
+}
+
+- (void)_changeMP:(int)point {
+    _mp += point;
+    SKLabelNode *mpLabel = (SKLabelNode *)[self childNodeWithName:MP_NAME];
+    if(_mp > _MAXMP){
+        _mp = _MAXMP;
+    }
+    mpLabel.text = [NSString stringWithFormat:@"MP : %03d / %03d", _mp, _MAXMP];
 }
 
 # pragma mark - SKPhysicsContactDelegate
@@ -376,7 +360,11 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         // 壁と当たった時
         } else if ((secondBody.categoryBitMask & worldCategory) != 0) {
 //            [firstBody.node removeAllActions];
+        } else if ((secondBody.categoryBitMask & doorCategory) != 0) {
+            _clearFlag = true;
+            [self clearStage];
         }
+        
     // 剣と敵の衝突判定
     } else if ((firstBody.categoryBitMask & swordCategory) != 0) {
         if ((secondBody.categoryBitMask & enemyCategory) != 0) {
@@ -397,6 +385,9 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
 }
 
 - (void)_attack:(SKNode *)weapon enemy:(SKNode *)enemy {
+    // MPを1回復
+    [self _changeMP:1];
+    
     // 火花を散らす
     NSString *sparkPath = [[NSBundle mainBundle] pathForResource:@"spark" ofType:@"sks"];
     SKEmitterNode *spark = [NSKeyedUnarchiver unarchiveObjectWithFile:sparkPath];
@@ -519,6 +510,8 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
                 [self updateStage2];
             } else if([_params[@"story"] isEqualToString:@"b3"]){
                 [self updateStage3];
+            } else if([_params[@"story"] isEqualToString:@"b4"]){
+                [self updateStage4];
             } else {
                 NSLog(@"no story matched. story=%@", _params[@"story"]);
             }
@@ -534,15 +527,12 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         int max = 4;
         if ((int)_timeSinceStart % timing == 0) {
             if (_enemies < max) {
-                [self _addEnemy];
+                [self _addEnemySlime];
             }
         }
     }
     if(_score >= 10){
-        _clearFlag = YES;
-        _params[@"story"] = @"b2";
-        _params[@"HP"] = [NSString stringWithFormat:@"%d", _hp];
-        [self loadSceneToDone:_params];
+        [self displayDoor];
     }
 }
 
@@ -554,7 +544,7 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         int max = 5;
         if ((int)_timeSinceStart % timing == 0) {
             if (_enemies < max) {
-                [self _addEnemy];
+                [self _addEnemySlime];
             }
         }
         timing = 4;
@@ -565,11 +555,7 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         }
     }
     if(_score >= 20){
-        _clearFlag = YES;
-        _params[@"story"] = @"b3";
-        _params[@"HP"] = [NSString stringWithFormat:@"%d", _hp];
-        
-        [self loadSceneWithParam:@"title" params:_params];
+        [self displayDoor];
     }
 }
 
@@ -581,12 +567,11 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
             [self _addEnemySkelton];
             _skelton ++;
         }
-        
         int timing = 4;
         int max = 5;
         if ((int)_timeSinceStart % timing == 0) {
             if (_enemies < max) {
-                [self _addEnemy];
+                [self _addEnemySlime];
             }
         }
         timing = 5;
@@ -597,11 +582,59 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
         }
     }
     if(_score >= 500){
-        _clearFlag = YES;
-        _params[@"story"] = @"1-crear";
-        _params[@"HP"] = [NSString stringWithFormat:@"%d", _hp];
-        [self loadSceneWithParam:@"story" params:_params];
+        [self displayDoor];
     }
+}
+
+- (void)updateStage4{
+    if (_timeSinceLastSecond >= 1) {
+        _timeSinceLastSecond = 0;
+        
+        int timing = 3;
+        int max = 5;
+        if ((int)_timeSinceStart % timing == 0) {
+            if (_enemies < max) {
+                [self _addEnemySlime];
+            }
+        }
+        timing = 7;
+        if ((int)_timeSinceStart % timing == 0) {
+            if (_enemies < max) {
+                [self _addEnemyBat];
+            }
+        }
+    }
+    if(_score >= 100){
+        [self displayDoor];
+    }
+}
+
+- (void)displayDoor{
+    if(_doorFlag == NO){
+        rpg01DoorNode* door = [rpg01DoorNode door];
+        door.position = CGPointMake(TILE_SIZE*2.5, self.frame.size.height - TILE_SIZE*3);
+        [self addChild:door];
+        _doorFlag = YES;
+    }
+}
+
+- (void)clearStage{
+    if([_params[@"story"] isEqualToString:@"b1"]){
+        _params[@"done"] = @"title";
+        _params[@"story"] = @"b2";
+    } else if([_params[@"story"] isEqualToString:@"b2"]){
+        _params[@"done"] = @"title";
+        _params[@"story"] = @"b3";
+    } else if([_params[@"story"] isEqualToString:@"b3"]){
+        _params[@"done"] = @"story";
+        _params[@"story"] = @"1-crear";
+    } else {
+        NSLog(@"no story matched. story=%@", _params[@"story"]);
+    }
+
+    _params[@"currentHP"] = [NSString stringWithFormat:@"%d", _hp];
+    _params[@"gold"] = [NSString stringWithFormat:@"%d", [_params[@"gold"] intValue] + _score];
+    [self loadSceneToDone:_params];
 }
 
 @end

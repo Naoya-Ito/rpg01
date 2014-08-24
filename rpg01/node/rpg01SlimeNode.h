@@ -3,7 +3,9 @@
 
 @interface rpg01SlimeNode : SKSpriteNode
 + (id)slime;
-- (NSMutableArray *)readTextures;
++ (id)greenSlime;
 - (void)slimeAnimation;
 - (void)moveSlime;
+- (void)greenSlimeAnimation;
+
 @end

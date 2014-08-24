@@ -1,6 +1,4 @@
-
 #import "rpg01SisterNode.h"
-
 
 @implementation rpg01SisterNode
 
@@ -9,6 +7,7 @@
     node.name = SISTER_NAME;
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
     node.physicsBody.affectedByGravity = NO;
+    node.physicsBody.dynamic = NO;
     node.physicsBody.categoryBitMask = sisterCategory;
     return node;
 }

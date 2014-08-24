@@ -7,24 +7,22 @@ static const CGFloat FIRE_DURATION = 1.0f;
 
 + (id)fire:(CGPoint)from {
     NSString *firePath = [[NSBundle mainBundle] pathForResource:@"fire" ofType:@"sks"];
-    SKEmitterNode *fire = [NSKeyedUnarchiver unarchiveObjectWithFile:firePath];
+    rpg01FireNode *fire = [NSKeyedUnarchiver unarchiveObjectWithFile:firePath];
+    fire.name = FIRE_NAME;
     fire.xScale = fire.yScale = 0.3f;
     fire.userData =  @{ @"type" : @"magic"
                         }.mutableCopy;
     fire.position = from;
-
     fire.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
     fire.physicsBody.affectedByGravity = NO;
     fire.physicsBody.categoryBitMask = swordCategory;
     fire.physicsBody.contactTestBitMask = enemyCategory;
     fire.physicsBody.collisionBitMask = 0;
     fire.physicsBody.usesPreciseCollisionDetection = YES;
-    
-    return  fire;
+    return fire;
 }
 
 - (SKAction *)fireShot:(CGPoint)from direction:(NSString *)direction{
-    // アクション設定
     CGPoint target;
     if([direction isEqualToString:@"up"]){
         target = CGPointMake(from.x, from.y + FIRE_DISTANCE);
