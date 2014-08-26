@@ -86,6 +86,9 @@ const int QUESTION_IMPORTANT = 2;
     if(_HP <= 0){
         _HP = 1;
     }
+    if(_MP <= 5){
+        _MP = 5;
+    }
     if(_str <= 0){
         _str = 1;
     }
@@ -134,9 +137,10 @@ const int QUESTION_IMPORTANT = 2;
     } else if(alertView.tag == QUESTION_JOB){
         switch (buttonIndex) {
             case 0:    // 勇者
+                _LV += 1;
                 _HP += 3;
-                _MP += 1;
-                _gold -= 20;
+                _MP += 2;
+                _gold += 10;
                 _str += 1;
                 _def += 1;
                 _int += 1;
@@ -227,21 +231,21 @@ const int QUESTION_IMPORTANT = 2;
 
 -(void)update:(CFTimeInterval)currentTime {
     if([_params[@"story"] isEqualToString:@"question_end"]){
-        [self messageNode].message = @"まずは迷宮の地下3階にあるチェックポイントを目指すと良い。必要な買い物を終えたら赤い扉を開くんだな。";
+        [self messageNode].message = @"まずはチュートリアル戦線で三日間の防衛任務を行いましょう！";
         _story = 101;
     } else if(_story == 0){
-        [self messageNode].message = @"あんたも秘宝を求めてやってきた冒険者か。命知らずだねぇ。";
+        [self messageNode].message = @"こんにちはであります大佐！　私は今日から防衛軍に配属されたルビーであります！";
     } else if (_story == 1){
-        [self messageNode].message = @"すぐにでも迷宮に潜りたい気持ちは分かるが、まずは手続きが必要なんだ。俺の質問にいくつか答えてもらうぜ。";
+        [self messageNode].message = @"初めに大佐の事を知る為にいくつか質問させてもらうであります！";
     } else if (_story == 3) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問１" message:@"あんたの名前を教えてくれ（４文字以内）" delegate:self cancelButtonTitle:@"名乗る名前などない" otherButtonTitles:@"OK", nil];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問１" message:@"大佐の名前を教えて欲しいであります！（４文字以内）" delegate:self cancelButtonTitle:@"名乗る名前などない" otherButtonTitles:@"OK", nil];
         alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
         alertView.tag = QUESTION_NAME;
         [alertView show];
         _story = 4;
     } else if (_story == 5) {
         if([_name isEqualToString:@"オレツエ"]){
-            [self messageNode].message = @"まさかあんたが伝説の剣士オレツエ……！？　サインをください！！";
+            [self messageNode].message = @"まさかあなたが伝説の剣士オレツエさんでありますか！？　サインをください！！";
             _HP += 500;
             _MP += 100;
             _gold += 200000;
@@ -250,17 +254,17 @@ const int QUESTION_IMPORTANT = 2;
             _int += 400;
             _story = 499;
         } else {
-            [self messageNode].message = [[NSString alloc]initWithFormat:@"%@、か……。この地方ではあまり聞かない名前だな。", _name];
+            [self messageNode].message = [[NSString alloc]initWithFormat:@"%@でありますか。格好良い名前です！", _name];
         }
     } else if (_story == 6) {
-        [self messageNode].message = @"へへっ。訳ありって事か。まあ、この迷宮に挑む奴らでは珍しい事じゃねえな。";
+        [self messageNode].message = @"訳ありでございますか。失礼しましたであります！";
     } else if (_story == 7) {
-        [self messageNode].message = @"呼ぶ名がないと不便だな。とりあえずイケメンと呼ばせてもらうぜ";
+        [self messageNode].message = @"呼ぶ名がないと不便なので、とりあえずイケメンと呼ばせてもらうであります！";
     } else if (_story == 8) {
-        [self messageNode].message = [[NSString alloc]initWithFormat:@"%@。この調子でどんどん質問をさせてもらうぜ。残る質問は四つ、さくさく行こうぜ。", _name];
+        [self messageNode].message = @"この調子でいくつか質問させてもらうであります。これらの返答で初期パラメーターが決まるらしいので気をつけてください。";
     } else if (_story == 9) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問2"
-                                                            message:@"あんたの職業を聞かせてくれ？"
+                                                            message:@"大佐のジョブはなんでありますか？"
                                                            delegate:self
                                                   cancelButtonTitle:nil
                                                   otherButtonTitles:@"勇者だぜ", @"戦士だよ", @"魔法使いです", @"盗賊だ",@"遊び人っす", nil];
@@ -268,38 +272,38 @@ const int QUESTION_IMPORTANT = 2;
         [alertView show];
         _story = 10;
     } else if (_story == 11) {
-        [self messageNode].message = @"自分で勇者を名乗るとは……ただもんじゃねえな。もしあんたが本物の勇者なら、攻守のバランスに優れて即戦力だろうな。";
+        [self messageNode].message = @"なんと！　自ら勇者を名乗るとはかなりの大物であります！";
     } else if (_story == 12) {
-        [self messageNode].message = @"脳筋の戦士……あんたも体育会系か？　その優れた攻撃力と防御力なら即戦力間違いなしだな。";
+        [self messageNode].message = @"脳筋の戦士……大佐は体育会系でございましたか。その優れた攻撃力と防御力は是非見習いたいであります！";
     } else if (_story == 13) {
-        [self messageNode].message = @"魔法使いには変わり者が多いって聞くが、あんたはどうなんだろうな。魔法使いは力と防御は低くてもMPの回復量が多いと聞いてるから羨ましいぜ。";
+        [self messageNode].message = @"魔法を使えるとは格好良いであります！　防御力が低くて上級者向きでありますな。";
     } else if (_story == 14) {
-        [self messageNode].message = @"良い身分だねぇ……忠告しておくが、ずっと遊び人でいたら賢者になれるってのは迷信だぜ。";
+        [self messageNode].message = @"大佐にもそんな時期があったんでありますね。";
     } else if (_story == 15) {
-        [self messageNode].message = @"おいおい……堂々と犯罪者自慢なんかして、逮捕されてもしらねえぜ。";
+        [self messageNode].message = @"……堂々と犯罪者自慢なんかして、逮捕されても知らないでありますよ。";
     } else if (_story == 18) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問3" message:@"迷宮に来た目的は？" delegate:self cancelButtonTitle:nil otherButtonTitles:@"酒代を稼ぐため", @"復讐のため", @"修行のため", @"世界平和のため", nil];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問3" message:@"入隊の目的は？" delegate:self cancelButtonTitle:nil otherButtonTitles:@"酒代を稼ぐため", @"復讐のため", @"修行のため", @"世界平和のため", nil];
         alertView.tag = QUESTION_IMPORTANT;
         [alertView show];
         _story = 19;
     } else if (_story == 20) {
-        [self messageNode].message = @"ほほう、気が合うね。こんど一杯飲もうぜ。";
+        [self messageNode].message = @"気が合うであります！　こんど一杯飲もうであります。";
     } else if (_story == 21) {
-        [self messageNode].message = @"しかし酒と言えば……他の冒険者にアル中が一人いたな。昔は名のある剣士だったらしいが今は廃人寸前だ……。あんたも酒の飲み過ぎには気をつける事だな。";
+        [self messageNode].message = @"ウェーイ！とかそういうノリは苦手なので静かに飲みましょう！";
     } else if (_story == 22) {
-        [self messageNode].message = @"復讐か……迷宮のモンスターに恋人でも殺されたか？　どう生きようかはあんたの勝手だ、俺から言う事は何もないぜ。";
+        [self messageNode].message = @"復讐ですか……モンスターに恋人でも殺されましたか？　どう生きようかは大佐の自由なので、私からは何も言いません！";
     } else if (_story == 23) {
-        [self messageNode].message = @"修行ねぇ……まあ、せいぜい頑張りな。";
+        [self messageNode].message = @"修行でありますか……目指せLV99でありますね。";
     } else if (_story == 24) {
         if([_job isEqualToString:@"盗賊"]){
-            [self messageNode].message = @"盗賊のくせに世界平和を目指すとは……義賊って奴か。俺は嫌いじゃないぜ。";
+            [self messageNode].message = @"盗賊なのに界平和を目指すとは……義賊でありますね。格好良いっす！";
         } else {
-            [self messageNode].message = @"立派だねぇ。";
+            [self messageNode].message = @"立派であります！　ちょっとうさん臭いけど立派であります！";
         }
     } else if (_story == 99) {
-        [self messageNode].message = [NSString stringWithFormat:@"質問は以上だ。話を聞く限りあんたのパラメーターは次の通りだ。"];
+        [self messageNode].message = [NSString stringWithFormat:@"質問は以上であります！　話を聞く限り大佐のパラメーターは次の通りでありますね。"];
     } else if (_story == 500){
-        [self messageNode].message = @"では、サクッと迷宮をクリアしちゃってください！";
+        [self messageNode].message = @"では、サクッとクリアしちゃってください！";
     }
 }
 

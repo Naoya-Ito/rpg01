@@ -16,9 +16,6 @@ const CGFloat HERO_IMAGE_NUM = 1;
     hero.physicsBody.contactTestBitMask = enemyCategory | worldCategory | doorCategory | sisterCategory;
     hero.physicsBody.collisionBitMask = worldCategory;
     hero.physicsBody.allowsRotation = NO;
-    hero.physicsBody.friction = 0.7;
-    hero.physicsBody.linearDamping = 0.6;
-    hero.physicsBody.usesPreciseCollisionDetection = YES;
     return hero;
 }
 

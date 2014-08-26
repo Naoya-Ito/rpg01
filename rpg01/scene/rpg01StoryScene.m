@@ -41,9 +41,9 @@
 
 - (void)update:(CFTimeInterval)currentTime {
     if([_params[@"story"] isEqualToString:@"1-crear"]){
-        [self messageNode].message = @"まさか半日で試練をクリアするとはな……やるじゃねえか。";
+        [self messageNode].message = @"見事な戦果である！　おかげで村の平和は守られたである！";
     } else if([_params[@"story"] isEqualToString:@"2-00"]){
-        [self messageNode].message = @"次はダンジョンの10階を目指すんだな";
+        [self messageNode].message = @"次の戦争は五日連戦だ。準備をちゃんとしておくである！";
     } else if([_params[@"story"] isEqualToString:@"2-crear"]){
         [self messageNode].message = @"やるじゃねえか。続きはまだ作成中なのでタイトル画面に戻りな";
         _params[@"story"] = @"end";
@@ -51,7 +51,6 @@
         [self messageNode].message = @"続きはまだ作成中なのでタイトル画面に戻りな";
         _params[@"story"] = @"end";
     }
-
 }
 
 @end

@@ -123,10 +123,10 @@ static const CGFloat SCENE_DURATION = 0.6f;
 - (void)addTimeLabel{
     SKLabelNode *timeLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
     timeLabel.name = TIME_NAME;
-    timeLabel.fontColor = [SKColor whiteColor];
+    timeLabel.fontColor = [SKColor blackColor];
     timeLabel.verticalAlignmentMode = SKLabelVerticalAlignmentModeTop;
     timeLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
-    timeLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - 40.0f);
+    timeLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - TILE_SIZE * 3);
     timeLabel.fontSize = 14.0f;
     [self addChild:timeLabel];
 }
@@ -180,9 +180,57 @@ static const CGFloat SCENE_DURATION = 0.6f;
     attackButton.position = CGPointMake( self.frame.size.width - 80, 80.0);
     attackButton.name = @"attackButton";
     [self addChild:attackButton];
-    
 }
 
 
+- (void)makeButton:(CGPoint)point name:(NSString *)name text:(NSString*)text{
+    CGRect rect = CGRectMake(point.x, point.y, 65.0f, 28.0f);
+    SKSpriteNode *square = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:rect.size];
+    square.position = rect.origin;
+    square.name = name;
+    [self addChild:square];
+    
+    SKLabelNode *textLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    textLabel.fontColor = [SKColor blackColor];
+    textLabel.name = name;
+    textLabel.fontSize = 15.0f;
+    textLabel.text = text;
+    
+    textLabel.position = CGPointMake(rect.origin.x , rect.origin.y - rect.size.height/4);
+    [self addChild:textLabel];
+}
+
+- (void)makeButtonWithSize:(CGPoint)point name:(NSString *)name text:(NSString*)text size:(CGSize)size{
+    SKSpriteNode *square = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:size];
+    square.position = point;
+    square.name = name;
+    [self addChild:square];
+    
+    SKLabelNode *textLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    textLabel.fontColor = [SKColor blackColor];
+    textLabel.name = name;
+    textLabel.fontSize = 15.0f;
+    textLabel.text = text;
+
+    textLabel.position = CGPointMake(point.x , point.y - size.height/4);
+    [self addChild:textLabel];
+}
+
+- (void)playBGM:(NSString*)name type:(NSString *)type{
+    NSString* path = [[NSBundle mainBundle]
+                      pathForResource:name ofType:type];
+    NSURL* url = [NSURL fileURLWithPath:path];
+    _audioPlayer = [[AVAudioPlayer alloc]
+                    initWithContentsOfURL:url error:nil];
+    _audioPlayer.numberOfLoops = -1;
+    [_audioPlayer play];
+    //    [audio pause]
+    //    [audio stop]
+}
+
+- (void)outputGold{
+    SKLabelNode *scoreLabel = (SKLabelNode *)[self childNodeWithName:SCORE_NAME];
+    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %05d", [_params[@"gold"] intValue]];
+}
 
 @end

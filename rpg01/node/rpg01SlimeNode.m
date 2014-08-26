@@ -8,12 +8,12 @@ const int SLIME_IMAGE_NUM = 2;
     rpg01SlimeNode *node = [rpg01SlimeNode spriteNodeWithTexture:[atlas textureNamed:@"slime0"]];
     node.name = ENEMY_NAME;
     node.userData =  @{ @"name" : @"スライム",
-                        @"life" : @(5),
+                        @"life" : @(1),
                         @"exp" : @(2),
                         @"speed_dx" : @(0.0f),
-                        @"speed_dy" : @(-120.0f),
+                        @"speed_dy" : @(-60.0f),
                         @"attacked" : @(2),
-                        @"str" : @(2)
+                        @"str" : @(1)
                         }.mutableCopy;
     [node setPhysic];
     return node;
@@ -39,13 +39,14 @@ const int SLIME_IMAGE_NUM = 2;
     self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
     self.physicsBody.affectedByGravity = NO;
     self.physicsBody.allowsRotation = YES;
-    self.physicsBody.categoryBitMask = enemyCategory | slimeCategory;
-    self.physicsBody.contactTestBitMask = heroCategory | swordCategory;
-    self.physicsBody.collisionBitMask = worldCategory | slimeCategory;
+    self.physicsBody.categoryBitMask = enemyCategory;
+    //self.physicsBody.categoryBitMask = enemyCategory | slimeCategory;
+    self.physicsBody.contactTestBitMask = heroCategory | swordCategory | houseCategory;
+//    self.physicsBody.collisionBitMask = worldCategory | slimeCategory | heroCategory;
+    self.physicsBody.collisionBitMask = worldCategory;
     self.physicsBody.restitution = 1.0f;
     self.physicsBody.linearDamping = 0;
     self.physicsBody.friction = 0;
-    self.physicsBody.usesPreciseCollisionDetection = YES;
 }
 
 - (NSMutableArray *)readTextures:(NSString *)name{

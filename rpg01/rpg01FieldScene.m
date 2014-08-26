@@ -7,6 +7,9 @@
 
 const int DOOR_TAG = 0;
 const int HEAL_TAG = 1;
+const int SAVE_TAG = 2;
+const int GAMBLE_TAG = 3;
+const int GAMBLE_TAG2 = 4;
 
 @interface rpg01FieldScene () <SKPhysicsContactDelegate>
 @end
@@ -16,159 +19,142 @@ const int HEAL_TAG = 1;
     NSString* _talk;
 }
 
--(void)createSceneContents{
+-(void)createSceneContents{    
+    
     _canMove = YES;
-    int _base_height = self.size.height*0.3f;
-    
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"shop" base_height:_base_height];
-    [self addChild:map];
-    
-    rpg01HeroNode *hero = [rpg01HeroNode hero];
-    hero.position = CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height);
-    hero.name = HERO_NAME;
-    hero.zPosition = 1.0f;
-    [self addChild:hero];
+//    int _base_height = self.size.height*0.3f;
     
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
     
-    SKSpriteNode * door = [rpg01DoorNode door];
-    door.position = CGPointMake(TILE_SIZE*2.5, self.frame.size.height - TILE_SIZE*3);
-    [self addChild:door];
+    CGPoint point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 310.0f);
+    [self makeButton:point name:@"go" text:@"戦場へ"];
+    [self outputDescription:point text:@"準備ができたら出撃しましょう"];
+    
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 275.0f);
+    [self makeButton:point name:@"LVUP" text:@"修行屋"];
+    [self outputDescription:point text:@"レベルアップします"];
 
-    [self setPeople];
-    self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
-    self.physicsWorld.contactDelegate = self;
-    self.physicsBody.categoryBitMask = worldCategory;
-    self.physicsBody.collisionBitMask = heroCategory;
-    self.physicsBody.usesPreciseCollisionDetection = YES;
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 240.0f);
+    [self makeButton:point name:@"weapon" text:@"武器屋"];
+    [self outputDescription:point text:@"武器攻撃力をパワーアップします"];
+    
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 205.0f);
+    [self makeButton:point name:@"magic" text:@"魔法屋"];
+    [self outputDescription:point text:@"魔法をパワーアップします"];
+    
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 170.0f);
+    [self makeButton:point name:@"daiku" text:@"大工屋"];
+    [self outputDescription:point text:@"町の防衛力を上げます"];
+
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 135.0f);
+    [self makeButton:point name:@"kajino" text:@"カジノ"];
+    [self outputDescription:point text:@"70%で財産２倍。30％で０になります"];
+    
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 100.0f);
+    [self makeButton:point name:@"info" text:@"民家"];
+    [self outputDescription:point text:@"情報を入手できます"];
+    
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 65.0f);
+    [self makeButton:point name:@"zoo" text:@"動物園"];
+    [self outputDescription:point text:@"魔物図鑑が観れます"];
+
+    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 30.0f);
+    [self makeButton:point name:@"save" text:@"セーブ"];
     
     [self addStatusFrame];
+}
+
+- (void)outputDescription:(CGPoint)point text:(NSString*)text{
+    SKLabelNode *textLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    textLabel.text = text;
+    textLabel.position = CGPointMake(point.x + 50.0f, point.y - 5.0f);
+    textLabel.fontSize = 14.0f;
+    textLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
+
+    textLabel.color = [SKColor whiteColor];
+    [self addChild:textLabel];
 }
 
 - (SKMessageNode *)messageNode {
     return (SKMessageNode *)[self childNodeWithName:kMessageName];
 }
 
-- (void)touchDoor{
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"迷宮への扉" message:@"覚悟ができたなら通るべし。" delegate:self cancelButtonTitle:@"まだ心の準備が……" otherButtonTitles:@"行くぜ！", nil];
+- (void)goStage{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"出撃準備はできましたか？" message:nil delegate:self cancelButtonTitle:@"まだ心の準備が……" otherButtonTitles:@"行くぜ！", nil];
     alertView.tag = DOOR_TAG;
     [alertView show];
 }
 
-- (void)talkSlime{
-    if([_params[@"slimeStory"] isEqualToString:@"friend"]){
-        int exp = 100 * [_params[@"LV"] intValue];
-        [self messageNode].message = [NSString stringWithFormat:@"プルプル。レベルアップに必要なゴールドは%dだよ", exp];
-        _talk = @"slimeStatus";
-        _canMove = NO;
-    } else {
-        [self messageNode].message = @"プルプル。僕に声をかけてくれれば君のステータスを見せてあげるよ。お金をくれればレベルアップもできるんだ。";
-        _params[@"slimeStory"] = @"friend";
-    }
+- (void)saveData{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:_params forKey:@"params"];
+
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"セーブ完了であります！" message:@"これで負けても安心ですな。" delegate:self cancelButtonTitle:nil otherButtonTitles:@"にやり", nil];
+    alertView.tag = SAVE_TAG;
+    [alertView show];
 }
 
+- (void)gamble{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"ギャンブルであります！" message:@"勝負後に自動でセーブされますので注意" delegate:self cancelButtonTitle:@"帰ろう" otherButtonTitles:@"勝負だー！", nil];
+    alertView.tag = GAMBLE_TAG;
+    [alertView show];
+}
+
+/*
 - (void)talkSister{
     if([_params[@"sisterStory"] isEqualToString:@"friend"]){
         int exp = 5 * [_params[@"LV"] intValue];
         int gold = [_params[@"gold"] intValue];
         if(exp >= gold){
-            [self messageNode].message = @"あなたの傷を治したいですが……残念ながら寄付金が足りません。";
+            [self messageNode].message = @"傷ついた人々を癒したいですが……残念ながら寄付金が足りません。";
         } else {
-            [self messageNode].message = [NSString stringWithFormat:@"%dの寄付金をいただければ傷を癒せます", exp];
+            [self messageNode].message = [NSString stringWithFormat:@"%dの寄付金をいただければ戦争で傷ついた人々を癒せます", exp];
             _talk = @"sisterHeal";
             _canMove = NO;
         }
     } else {
-        [self messageNode].message = [NSString stringWithFormat:@"こんにちは、%@さん。私はシスターのエリー。迷宮で傷つく人を癒したくてここに来ました。", _params[@"nickname"]];
+        [self messageNode].message = [NSString stringWithFormat:@"こんにちは、%@さん。私はシスターのエリー。戦争で傷つく人を癒したくてここに来ました。", _params[@"nickname"]];
         _params[@"slimeStory"] = @"friend";
         _canMove = NO;
         _talk = @"sister0";
     }
 }
+ */
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
-    CGPoint locaiton = [touch locationInNode:self];
-
+    SKNode *nodeAtPoint = [self nodeAtPoint:[touch locationInNode:self]];
+    
     if(_canMove == NO){
-        if([_talk isEqualToString:@"slimeStatus"]){
-            _params[@"done"] = @"field";
-            [self loadSceneWithParam:@"status" params:_params];
-        } else if([_talk isEqualToString:@"slimeStatus"]){
-            _params[@"done"] = @"field";
-            [self loadSceneWithParam:@"play" params:_params];
-        } else if([_talk isEqualToString:@"sisterHeal"]){
+        if([_talk isEqualToString:@"sisterHeal"]){
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"シスターの回復" message:@"寄付金を払って回復しますか？" delegate:self cancelButtonTitle:@"いいえ" otherButtonTitles:@"はい", nil];
             alertView.tag = HEAL_TAG;
             [alertView show];
         } else if([_talk isEqualToString:@"sister0"]){
-            [self messageNode].message = @"小額の寄付をいただければ体力を満タンにしてあげることができます。くれぐれも無理はなさらないでくださいね……。";
+            [self messageNode].message = @"小額の寄付をいただければ戦争で傷ついた人々を癒せます。";
             _canMove = YES;
             _params[@"sisterStory"] = @"friend";
         }
     } else {
-        [self _moveHero:locaiton];
-    }
-}
-
-// 主人公を動かす
-- (void)_moveHero:(CGPoint)locaiton {
-
-    rpg01HeroNode *hero = (rpg01HeroNode *)[self childNodeWithName:@"hero"];
-    [hero removeAllActions];
-    
-    CGFloat x = locaiton.x;
-    CGFloat y = locaiton.y;
-    
-    // MAXY
-    if(y > CGRectGetMaxY(self.frame) - 30.0f){
-        y = CGRectGetMaxY(self.frame)  - 30.0f;
-    }
-    
-    CGFloat diff = abs(hero.position.x - x);
-    CGFloat durationX = HERO_SPEED * diff / self.frame.size.width;
-    diff = abs(hero.position.y - y);
-    CGFloat durationY = HERO_SPEED * diff / self.frame.size.height;
-    CGFloat duration;
-    NSString *_direction;
-    if(durationX >= durationY){
-        duration = durationX;
-        if(hero.position.x > locaiton.x){
-            _direction = @"left";
-            [hero walkLeft];
-        } else {
-            _direction = @"right";
-            [hero walkRight];
-        }
-    } else {
-        duration = durationY;
-        if(hero.position.y > locaiton.y){
-            _direction = @"down";
-            [hero walkDown];
-        } else {
-            _direction = @"up";
-            [hero walkUp];
+        if ([nodeAtPoint.name isEqualToString:@"go"]) {
+            [self goStage];
+        } else if ([nodeAtPoint.name isEqualToString:@"LVUP"]) {
+            _params[@"done"] = @"field";
+            [self loadSceneWithParam:@"status" params:_params];
+        } else if ([nodeAtPoint.name isEqualToString:@"kajino"]) {
+            [self gamble];
+        } else if ([nodeAtPoint.name isEqualToString:@"save"]) {
+            [self saveData];
         }
     }
-    
-    CGVector vector = CGVectorMake( (locaiton.x - hero.position.x)/30 , (locaiton.y - hero.position.y)/30);
-    [hero.physicsBody applyImpulse:vector];
-
-    /*
-    SKAction *move = [SKAction moveTo:CGPointMake(locaiton.x, y) duration:duration];
-    [hero runAction:move completion:^{
-        [hero stop];
-    }];
-     */
 }
-
 
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if(alertView.tag == DOOR_TAG){
         switch (buttonIndex) {
             case 0:   // まだ心の準備が……
-                _params[@"_nickname"] = @"慎重な";
+                _params[@"nickname"] = @"慎重な";
                 break;
             case 1:   // 覚悟はできてる。
                 [self loadSceneWithParam:@"play" params:_params];
@@ -185,30 +171,33 @@ const int HEAL_TAG = 1;
                 _canMove = YES;
                 break;
         }
-    }
-}
-
-# pragma mark - SKPhysicsContactDelegate
-// 衝突判定
-- (void)didBeginContact:(SKPhysicsContact *)contact {
-    SKPhysicsBody *firstBody, *secondBody;
-        if (contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask) {
-        firstBody = contact.bodyA;
-        secondBody = contact.bodyB;
-    } else {
-        firstBody = contact.bodyB;
-        secondBody = contact.bodyA;
-    }
-    if ((firstBody.categoryBitMask & heroCategory) != 0) {
-        if ((secondBody.categoryBitMask & slimeCategory) != 0) {
-            [self talkSlime];
-        } else if ((secondBody.categoryBitMask & doorCategory) != 0) {
-            [self touchDoor];
-        } else if ((secondBody.categoryBitMask & sisterCategory) != 0) {
-            [self talkSister];
+    } else if(alertView.tag == GAMBLE_TAG){
+        int i;
+        switch (buttonIndex) {
+            case 0:   // cancel
+                _params[@"nickname"] = @"臆病な";
+                break;
+            case 1:
+                i = arc4random()%10;
+                if(i <= 6){
+                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"大勝利！" message:@"ふっふっふ、財産が２倍になったであります！" delegate:self cancelButtonTitle:@"今夜は焼き肉だー！" otherButtonTitles:nil, nil];
+                    alertView.tag = GAMBLE_TAG2;
+                    _params[@"gold"] = [NSString stringWithFormat:@"%d", [_params[@"gold"] intValue]*2];
+                    _params[@"nickname"] = @"勝負師";
+                    [alertView show];
+                } else {
+                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"とほほ。負けちゃいました" message:@"悲しいであります　(´；ω；｀)" delegate:self cancelButtonTitle:@"帰ろうか……" otherButtonTitles:nil, nil];
+                    alertView.tag = GAMBLE_TAG2;
+                    _params[@"gold"] = @"0";
+                    _params[@"nickname"] = @"文無し";
+                    [alertView show];
+                }
+                NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+                [defaults setObject:_params forKey:@"params"];
+                [self outputGold];
+                break;
         }
     }
-    [firstBody.node removeAllActions];
 }
 
 @end

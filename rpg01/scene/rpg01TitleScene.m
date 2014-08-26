@@ -21,20 +21,20 @@ static const CGFloat DELAY = 5.0f;
     
     SKMessageNode *message = [[SKMessageNode alloc] initWithNoBox:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
-    
+
     if([_params[@"story"] isEqualToString:@"chapter1"]){
-        titleLabel.text = @"第一章 伝説の秘宝";
-        [self messageNode].message = @"その迷宮の最奥には、所有者に不老不死をもたらす秘宝が眠っていると言われている";
+        titleLabel.text = @"第一章 モンスター軍　襲来";
+        [self messageNode].message = @"時は20XX年。人々はモンスターの脅威にさらされていた。";
         [self performSelector:@selector(nextSceneFromChapter1) withObject:nil afterDelay:DELAY];
     } else if([_params[@"story"] isEqualToString:@"b1"]){
-        titleLabel.text = @"地下１階　初心者狩りの間";
-        subTitleLabel.text = @"クリア条件：スライムを10体倒せ";
-        [self messageNode].message = @"タップをすればそこに主人公が移動する。主人公自身をタップすればその場で剣を振るので、うまく当ててスライムを倒すべし。";
+        titleLabel.text = @"防衛１日目　恐怖のスライム軍";
+        subTitleLabel.text = @"クリア条件：20秒間町を守り続けろ！";
+        [self messageNode].message = @"タップをすればそこに主人公が移動する。剣マークをタップして攻撃してスライムを倒すべし！";
         [self performSelector:@selector(nextSceneFromB1) withObject:nil afterDelay:DELAY];
     } else if([_params[@"story"] isEqualToString:@"b2"]){
-        titleLabel.text = @"地下2階　闇に潜む者達";
-        subTitleLabel.text = @"クリア条件：スコアを20以上稼げ";
-        [self messageNode].message = @"敵を倒すとスライムは2点。コウモリは5点が手に入る。強い敵ほど倒したときのリスクとリターンは大きい。";
+        titleLabel.text = @"防衛二日目　空からの恐怖";
+        subTitleLabel.text = @"クリア条件：20秒間耐え続けろ";
+        [self messageNode].message = @"MPを消費して魔法を唱えるべし。剣攻撃を当てればMPが回復するのだ。";
         [self performSelector:@selector(nextSceneFromB2) withObject:nil afterDelay:DELAY];
     } else if([_params[@"story"] isEqualToString:@"b3"]){
         titleLabel.text = @"地下3階　動く屍";
@@ -46,7 +46,6 @@ static const CGFloat DELAY = 5.0f;
     [self addChild:titleLabel];
     [self addChild:subTitleLabel];
 }
-
 
 - (SKMessageNode *)messageNode {
     return (SKMessageNode *)[self childNodeWithName:kMessageName];

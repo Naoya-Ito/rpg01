@@ -1,8 +1,10 @@
 #import <SpriteKit/SpriteKit.h>
 #import "rpg01Utilities.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface rpg01BaseScene : SKScene{
     NSMutableDictionary *_params;
+    AVAudioPlayer *_audioPlayer;
 }
 
 @property (nonatomic) BOOL contentCreated;
@@ -16,4 +18,8 @@
 - (void)addStatusFrame;
 - (void)setPeople;
 - (void)addController:(CGFloat)_base_height;
+- (void)makeButton:(CGPoint)point name:(NSString *)name text:(NSString*)text;
+- (void)makeButtonWithSize:(CGPoint)point name:(NSString *)name text:(NSString*)text size:(CGSize)size;
+- (void)playBGM:(NSString*)name type:(NSString *)type;
+- (void)outputGold;
 @end

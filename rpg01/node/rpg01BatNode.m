@@ -9,11 +9,19 @@ const int BAT_IMAGE_NUM = 2;
 + (id)bat {
     SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"bat"];
     rpg01BatNode *node = [rpg01BatNode spriteNodeWithTexture:[atlas textureNamed:@"bat0"]];
+    node.name = ENEMY_BAT_NAME;
+    int dx;
+    if(arc4random()%2 == 1){
+        dx = 60;
+    } else {
+        dx = -60;
+    }
+    
     node.userData =  @{ @"name" : @"コウモリ",
                         @"life" : @(18),
                         @"exp" : @(5),
-                        @"speed_dx" : @(40 + arc4random()%81),
-                        @"speed_dy" : @(-200.0f),
+                        @"speed_dx" : @(dx),
+                        @"speed_dy" : @(-150.0f),
                         @"attacked" : @(3),
                         @"str" : @(2)                        
                         }.mutableCopy;
@@ -21,15 +29,11 @@ const int BAT_IMAGE_NUM = 2;
     node.physicsBody.affectedByGravity = NO;
     node.physicsBody.allowsRotation = NO;
     node.physicsBody.categoryBitMask = enemyCategory;
-    node.physicsBody.contactTestBitMask = heroCategory | swordCategory;
+    node.physicsBody.contactTestBitMask = heroCategory | swordCategory | houseCategory;
     node.physicsBody.collisionBitMask = worldCategory;
-    node.physicsBody.restitution = 1.0f;
-    node.physicsBody.linearDamping = 0;
     node.physicsBody.friction = 0;
-    node.physicsBody.usesPreciseCollisionDetection = YES;
     
     // 敵のスピード
-    int dx = [node.userData[@"speed_dx"] intValue];
     int dy = [node.userData[@"speed_dy"] intValue];
     node.physicsBody.velocity = CGVectorMake( dx, dy);    
     

@@ -3,10 +3,11 @@
 #import "rpg01SwordNode.h"
 #import "rpg01BatNode.h"
 #import "rpg01SlimeNode.h"
+#import "rpg01CatNode.h"
+#import "rpg01DragonNode.h"
 #import "rpg01SkeltonNode.h"
 #import "rpg01FireNode.h"
 #import "rpg01DoorNode.h"
-
 #import "rpg01MapNode.h"
 
 static inline CGFloat skRandf() {
@@ -23,9 +24,11 @@ const int FIRE_COST = 5;
 
 @implementation rpg01PlayScene {
     BOOL _contentCreated;
+    BOOL _onceFlag;
     NSTimeInterval _lastUpdateTimeInterval;
     NSTimeInterval _timeSinceStart;
     NSTimeInterval _timeSinceLastSecond;
+    NSTimeInterval _stageTime;
     int _enemies;
     int _fires;
     int _boxes;
@@ -38,6 +41,7 @@ const int FIRE_COST = 5;
     int _str;
     int _def;
     int _int;
+    int _houseHP;
     NSString *_direction;
     NSString *_weaponType;
     BOOL _doorFlag;
@@ -59,6 +63,9 @@ const int FIRE_COST = 5;
     _weaponType = @"sword";
     _base_height = self.size.height*0.2f;
     _direction = @"right";
+    _stageTime = 20.0f;
+    _houseHP = 200;
+    _onceFlag = NO;
     
     _hp = [_params[@"currentHP"] intValue];
     _MAXHP = [_params[@"HP"] intValue];
@@ -70,6 +77,7 @@ const int FIRE_COST = 5;
     
     self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
     self.physicsWorld.contactDelegate = self;
+    self.physicsWorld.gravity = CGVectorMake(0.0, -3.0);
     self.physicsBody.categoryBitMask = worldCategory;
     
     
@@ -86,9 +94,30 @@ const int FIRE_COST = 5;
         [self createB4Stage];
     }
     
+    [self displayHouseHPBar];
     [self addStatusFrame];
     [self addController:_base_height];
+    
+    [self playBGM:@"tekichi" type:@"wav"];
 }
+
+- (void) displayHouseHPBar{
+    
+    CGRect rect = CGRectMake(CGRectGetMaxX(self.frame) - 40.0f, _base_height + 20.0f, 30.0f, 200.0f);
+    SKSpriteNode *square = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:rect.size];
+    square.position = rect.origin;
+    square.name = @"houseHPBox";
+    square.anchorPoint = CGPointMake(0, 0);
+    [self addChild:square];
+    
+    rect = CGRectMake(CGRectGetMaxX(self.frame) - 40.0f, _base_height + 20.0f, 30.0f, 200.0f);
+    square = [SKSpriteNode spriteNodeWithColor:[UIColor yellowColor] size:rect.size];
+    square.position = rect.origin;
+    square.name = @"houseHP";
+    square.anchorPoint = CGPointMake(0, 0);
+    [self addChild:square];
+}
+
 
 - (void)createB1Stage{
     rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b1" base_height:_base_height];
@@ -230,7 +259,7 @@ const int FIRE_COST = 5;
 - (void)_addEnemySlime{
     _enemies++;
     rpg01SlimeNode *enemy = [rpg01SlimeNode slime];
-    enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
     enemy.name = ENEMY_NAME;
     [self addChild:enemy];
     [enemy slimeAnimation];
@@ -240,26 +269,36 @@ const int FIRE_COST = 5;
 - (void)_addEnemyGreenSlime{
     _enemies++;
     rpg01SlimeNode *enemy = [rpg01SlimeNode greenSlime];
-    enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
-    enemy.name = ENEMY_NAME;
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
     [self addChild:enemy];
     [enemy greenSlimeAnimation];
     [enemy moveSlime];
 }
 
+// ネコを追加する
+- (void)_addEnemyCat{
+    rpg01CatNode *enemy = [rpg01CatNode cat];
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
+    [self addChild:enemy];
+}
+
+- (void)_addEnemyDragon{
+    rpg01DragonNode *enemy = [rpg01DragonNode dragon];
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 1.5, 6.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE*2);
+    [self addChild:enemy];
+}
+
 // コウモリを追加する
 - (void)_addEnemyBat{
     rpg01BatNode *enemy = [rpg01BatNode bat];
-    enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
-    enemy.name = ENEMY_BAT_NAME;
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
     [self addChild:enemy];
     [enemy fly];
 }
 
 - (void)_addEnemySkelton{
     rpg01SkeltonNode *enemy = [rpg01SkeltonNode skelton];
-    enemy.position = CGPointMake(skRand(40.0f, CGRectGetMaxX(self.frame) - 40.0f), CGRectGetMaxY(self.frame) - TILE_SIZE);
-    enemy.name = ENEMY_SKELTON_NAME;
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
     [self addChild:enemy];
     [enemy skeltonMove];
 }
@@ -319,7 +358,7 @@ const int FIRE_COST = 5;
 - (void)_score:(int)score {
     _score += score;
     SKLabelNode *scoreLabel = (SKLabelNode *)[self childNodeWithName:SCORE_NAME];
-    scoreLabel.text = [NSString stringWithFormat:@"SCORE : %05d", _score];
+    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %05d", _score];
 }
 
 - (void)_changeHP:(int)point {
@@ -360,11 +399,12 @@ const int FIRE_COST = 5;
         // 壁と当たった時
         } else if ((secondBody.categoryBitMask & worldCategory) != 0) {
 //            [firstBody.node removeAllActions];
+/*
         } else if ((secondBody.categoryBitMask & doorCategory) != 0) {
             _clearFlag = true;
             [self clearStage];
+*/
         }
-        
     // 剣と敵の衝突判定
     } else if ((firstBody.categoryBitMask & swordCategory) != 0) {
         if ((secondBody.categoryBitMask & enemyCategory) != 0) {
@@ -375,13 +415,24 @@ const int FIRE_COST = 5;
         // 世界（壁）と衝突した時
         if ((secondBody.categoryBitMask & worldCategory) != 0) {
 
-        // box と衝突した時
-        } else if ((secondBody.categoryBitMask & boxCategory) != 0) {
-//            [firstBody.node removeFromParent];
-//            _enemies--;
-//            [self _miss:secondBody.node];
+        // houseと衝突した時
+        } else if ((secondBody.categoryBitMask & houseCategory) != 0) {
+            [self burnHouse:firstBody.node house:secondBody.node];
         }
     }
+}
+
+- (void)burnHouse:(SKNode*)enemy house:(SKNode*)house{
+    int damage = [enemy.userData[@"str"] intValue];
+    _houseHP -= damage;
+    
+    if(_houseHP <= 0){
+        [self loadScene:@"gameOver"];
+    }
+    SKSpriteNode *bar = (SKSpriteNode *)[self childNodeWithName:@"houseHP"];
+    bar.size = CGSizeMake(30.0f, _houseHP);
+
+    [self displayDamage:damage position:house.position color:[SKColor redColor]];
 }
 
 - (void)_attack:(SKNode *)weapon enemy:(SKNode *)enemy {
@@ -428,22 +479,15 @@ const int FIRE_COST = 5;
     } else {
         enemy.userData[@"life"] = @(life);
         [self displayLife:life name:enemy.userData[@"name"]];
-        
-        if([_direction isEqualToString:@"right"]){
-            [enemy.physicsBody applyImpulse:CGVectorMake([enemy.userData[@"attacked"] intValue], 0)];
-        } else if([_direction isEqualToString:@"left"]){
-            [enemy.physicsBody applyImpulse:CGVectorMake( - [enemy.userData[@"attacked"] intValue], 0)];
-        } else if([_direction isEqualToString:@"up"]){
-            [enemy.physicsBody applyImpulse:CGVectorMake( 0,[enemy.userData[@"attacked"] intValue])];
-        } else if([_direction isEqualToString:@"down"]){
-            [enemy.physicsBody applyImpulse:CGVectorMake( 0,- [enemy.userData[@"attacked"] intValue])];
-        }
+
+        [enemy.physicsBody applyImpulse:CGVectorMake( 0,[enemy.userData[@"attacked"] intValue])];
     }
 }
 
 - (void)displayDamage:(int)damage position:(CGPoint)position color:(SKColor*)color{
     SKLabelNode *damageLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
     damageLabel.text = [NSString stringWithFormat:@"%d", damage];
+    damageLabel.name = @"damage";
     damageLabel.position = CGPointMake(position.x, position.y + TILE_SIZE);
     damageLabel.fontColor = color;
     [self addChild:damageLabel];
@@ -487,12 +531,14 @@ const int FIRE_COST = 5;
     if(damage <= 0){
         damage = 1;
     }
-    [self displayDamage:damage position:hero.position color:[SKColor redColor]];
+    [self displayDamage:damage position:hero.position color:[SKColor blueColor]];
     [self _changeHP: -damage];
 }
 
 - (void)_dead {
-    [self loadScene:@"gameOver"];
+    // ５秒後に復活
+    
+    //[self loadScene:@"gameOver"];
 }
 
 - (void)update:(NSTimeInterval)currentTime {    
@@ -502,111 +548,78 @@ const int FIRE_COST = 5;
             _timeSinceStart += timeSinceLast;
             _timeSinceLastSecond += timeSinceLast;
             SKLabelNode *timeLabel = (SKLabelNode *)[self childNodeWithName:TIME_NAME];
-            timeLabel.text = [NSString stringWithFormat:@"%07.1f", _timeSinceStart];
+            timeLabel.text = [NSString stringWithFormat:@"%07.1f", _stageTime - _timeSinceStart];
             
-            if([_params[@"story"] isEqualToString:@"b1"]){
-                [self updateStage1];
-            } else if([_params[@"story"] isEqualToString:@"b2"]){
-                [self updateStage2];
-            } else if([_params[@"story"] isEqualToString:@"b3"]){
-                [self updateStage3];
-            } else if([_params[@"story"] isEqualToString:@"b4"]){
-                [self updateStage4];
-            } else {
-                NSLog(@"no story matched. story=%@", _params[@"story"]);
+            if (_timeSinceLastSecond >= 1) {
+                _timeSinceLastSecond = 0;
+                if([_params[@"story"] isEqualToString:@"b1"]){
+                    [self updateStage1];
+                } else if([_params[@"story"] isEqualToString:@"b2"]){
+                    [self updateStage2];
+                } else if([_params[@"story"] isEqualToString:@"b3"]){
+                    [self updateStage3];
+                } else if([_params[@"story"] isEqualToString:@"b4"]){
+                    [self updateStage4];
+                } else {
+                    NSLog(@"no story matched. story=%@", _params[@"story"]);
+                }
+            }
+            if(_stageTime <= _timeSinceStart && _clearFlag == NO){
+                _clearFlag = YES;
+                [self clearStage];
             }
         }
         _lastUpdateTimeInterval = currentTime;
     }
 }
 
-- (void)updateStage1{
-    if (_timeSinceLastSecond >= 1) {
-        _timeSinceLastSecond = 0;
-        int timing = 3;
-        int max = 4;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemySlime];
-            }
+// timing秒毎にモンスターを出現
+- (void)addEnemyTiming:(NSString*)enemy timing:(int)timing{
+    if((int)_timeSinceStart % timing == 0){
+        if([enemy isEqualToString:@"slime"]){
+            [self _addEnemySlime];
+        } else if([enemy isEqualToString:@"cat"]){
+            [self _addEnemyCat];
+        } else if([enemy isEqualToString:@"bat"]){
+            [self _addEnemyBat];
+        } else if([enemy isEqualToString:@"skelton"]){
+            [self _addEnemySkelton];
+        } else if([enemy isEqualToString:@"dragon"]){
+            [self _addEnemyDragon];
         }
-    }
-    if(_score >= 10){
-        [self displayDoor];
     }
 }
 
-- (void)updateStage2{
-    if (_timeSinceLastSecond >= 1) {
-        _timeSinceLastSecond = 0;
+// ステージ設定
+- (void)updateStage1{
+    [self addEnemyTiming:@"slime" timing:2];
+    [self addEnemyTiming:@"cat" timing:3];
+}
 
-        int timing = 3;
-        int max = 5;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemySlime];
-            }
-        }
-        timing = 4;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemyBat];
-            }
-        }
-    }
-    if(_score >= 20){
-        [self displayDoor];
+- (void)updateStage2{
+    [self addEnemyTiming:@"slime" timing:3];
+    [self addEnemyTiming:@"cat" timing:5];
+    [self addEnemyTiming:@"bat" timing:4];
+    [self addEnemyTiming:@"dragon" timing:15];
+    if(_onceFlag == NO){
+        [self _addEnemyDragon];
+        _onceFlag = YES;
     }
 }
 
 - (void)updateStage3{
-    if (_timeSinceLastSecond >= 1) {
-        _timeSinceLastSecond = 0;
-        
-        if(_skelton ==0){
-            [self _addEnemySkelton];
-            _skelton ++;
-        }
-        int timing = 4;
-        int max = 5;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemySlime];
-            }
-        }
-        timing = 5;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemyBat];
-            }
-        }
-    }
-    if(_score >= 500){
-        [self displayDoor];
+    [self addEnemyTiming:@"slime" timing:3];
+    [self addEnemyTiming:@"bat" timing:5];
+    if(_onceFlag == NO){
+        [self _addEnemySkelton];
+        _onceFlag = YES;
     }
 }
 
 - (void)updateStage4{
-    if (_timeSinceLastSecond >= 1) {
-        _timeSinceLastSecond = 0;
-        
-        int timing = 3;
-        int max = 5;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemySlime];
-            }
-        }
-        timing = 7;
-        if ((int)_timeSinceStart % timing == 0) {
-            if (_enemies < max) {
-                [self _addEnemyBat];
-            }
-        }
-    }
-    if(_score >= 100){
-        [self displayDoor];
-    }
+    [self addEnemyTiming:@"slime" timing:1];
+    [self addEnemyTiming:@"bat" timing:3];
+    [self addEnemyTiming:@"skelton" timing:15];
 }
 
 - (void)displayDoor{

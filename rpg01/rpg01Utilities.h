@@ -21,6 +21,7 @@ static NSString * const HERO_NAME = @"hero";
 static NSString * const ENEMY_NAME = @"enemy";
 static NSString * const ENEMY_BAT_NAME = @"bat";
 static NSString * const ENEMY_SKELTON_NAME = @"skelton";
+static NSString * const ENEMY_CAT_NAME = @"cat";
 static NSString * const TIME_NAME = @"time";
 static NSString * const HP_NAME = @"hp";
 static NSString * const MP_NAME = @"mp";

@@ -14,4 +14,5 @@
     }
     self.colorBlendFactor = _highlighted ? 0.7f : 0;
 }
+
 @end

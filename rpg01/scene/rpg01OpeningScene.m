@@ -14,30 +14,24 @@
 - (void)createSceneContents
 {
     SKLabelNode *titleLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-    titleLabel.text = @"J・クエリーの秘宝";
+    titleLabel.text = @"勇者防衛軍";
     titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
     [self addChild:titleLabel];
+    
+    [self makeButton:CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 30.0f) name:START_NAME text:@"はじめる" ];
+    
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    if([defaults objectForKey:@"params"]){
+        NSDictionary *dict =  [defaults dictionaryForKey:@"params"];
+        _params = [dict mutableCopy];
 
-    SKButtonNode *startButton = [SKButtonNode labelNodeWithFontNamed:titleLabel.fontName];
-    startButton.text = @"はじめる";
-    startButton.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 30.0f);
-    startButton.fontSize = 20.0f;
-    startButton.hidden = YES;
-    startButton.name = START_NAME;
-    [self addChild:startButton];
+        [self makeButton:CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 70.0f) name:@"continue" text:@"つづき"];
+    }
     
     [self addSlime];
     [self addFire];
     [self addGreenFire];
     [self addBlueFire];
-
-    // タイトルが上に動くアニメーション
-    SKAction *wait = [SKAction waitForDuration:1.0f];
-    SKAction *moveUp = [SKAction moveByX:0 y:50.0f duration:0.5f];
-    SKAction *sequence = [SKAction sequence:@[wait, moveUp]];
-    [titleLabel runAction:sequence completion:^{
-        startButton.hidden = NO;
-    }];
 }
 
 - (void)addFire{
@@ -84,6 +78,8 @@
                     @"story" : @"chapter1"
                     } mutableCopy];
         [self loadSceneWithParam:@"title" params:params];
+    } else if ([nodeAtPoint.name isEqualToString:@"continue"]){
+        [self loadSceneWithParam:@"field" params:_params];
     } else if ([nodeAtPoint.name isEqualToString:FIRE_NAME]){
         NSMutableDictionary *params;
         params = [@{@"name": @"ikemen",
@@ -96,7 +92,7 @@
                     @"str" : @"5",
                     @"def" : @"5",
                     @"int" : @"5",                    
-                    @"story" : @"b1",
+                    @"story" : @"b3",
                     @"done" : @"title"
                     } mutableCopy];
         [self loadSceneWithParam:@"play" params:params];
@@ -122,7 +118,7 @@
                     @"nickname": @"テスト戦士イケメン",
                     @"LV" : @"1",
                     @"gold" : @"10000",
-                    @"HP" : @"100",
+                    @"HP" : @"3",
                     @"currentHP" : @"100",
                     @"MP" : @"150",
                     @"gold" : @"10000",
