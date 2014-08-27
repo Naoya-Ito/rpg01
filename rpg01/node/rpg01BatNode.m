@@ -12,18 +12,19 @@ const int BAT_IMAGE_NUM = 2;
     node.name = ENEMY_BAT_NAME;
     int dx;
     if(arc4random()%2 == 1){
-        dx = 60;
+        dx = 80;
     } else {
-        dx = -60;
+        dx = -80;
     }
     
     node.userData =  @{ @"name" : @"コウモリ",
-                        @"life" : @(18),
+                        @"life" : @(10),
                         @"exp" : @(5),
                         @"speed_dx" : @(dx),
-                        @"speed_dy" : @(-150.0f),
+                        @"speed_dy" : @(-80.0f),
                         @"attacked" : @(3),
-                        @"str" : @(2)                        
+                        @"str" : @(2),
+                        @"kieru" : @"OK"
                         }.mutableCopy;
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
     node.physicsBody.affectedByGravity = NO;

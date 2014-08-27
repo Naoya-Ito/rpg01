@@ -1,6 +1,6 @@
 #import "rpg01SwordNode.h"
 
-const int SWORD_IMAGE_NUM = 3;
+//const int SWORD_IMAGE_NUM = 4;
 
 @implementation rpg01SwordNode
 
@@ -15,7 +15,7 @@ const int SWORD_IMAGE_NUM = 3;
 - (NSMutableArray *)readTextures{
     NSMutableArray *textures = @[].mutableCopy;
     SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"sword"];
-    for( int i=0; i < SWORD_IMAGE_NUM; i++){
+    for( int i=-1; i < 3; i++){
         SKTexture *texture = [atlas textureNamed:[NSString stringWithFormat:@"sword%d",i]];
         [textures addObject:texture];
     }

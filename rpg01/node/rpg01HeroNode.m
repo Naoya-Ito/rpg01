@@ -13,7 +13,7 @@ const CGFloat HERO_IMAGE_NUM = 1;
     //hero.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
     hero.physicsBody.affectedByGravity = NO;
     hero.physicsBody.categoryBitMask = heroCategory;
-    hero.physicsBody.contactTestBitMask = enemyCategory | worldCategory | doorCategory | sisterCategory;
+    hero.physicsBody.contactTestBitMask = enemyCategory | worldCategory | doorCategory;
     hero.physicsBody.collisionBitMask = worldCategory;
     hero.physicsBody.allowsRotation = NO;
     return hero;

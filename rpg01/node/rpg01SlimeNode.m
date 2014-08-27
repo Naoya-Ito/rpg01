@@ -24,12 +24,13 @@ const int SLIME_IMAGE_NUM = 2;
     rpg01SlimeNode *node = [rpg01SlimeNode spriteNodeWithTexture:[atlas textureNamed:@"greenSlime0"]];
     node.name = ENEMY_NAME;
     node.userData =  @{ @"name" : @"凶悪ピーマン",
-                        @"life" : @(30),
-                        @"exp" : @(30),
-                        @"speed_dx" : @(20),
-                        @"speed_dy" : @(-120.0f),
+                        @"life" : @(10),
+                        @"exp" : @(40),
+                        @"speed_dx" : @(0),
+                        @"speed_dy" : @(-70.0f),
                         @"attacked" : @(2),
-                        @"str" : @(4)
+                        @"str" : @(19),
+                        @"kieru" : @"OK"
                         }.mutableCopy;
     [node setPhysic];
     return node;
@@ -44,7 +45,7 @@ const int SLIME_IMAGE_NUM = 2;
     self.physicsBody.contactTestBitMask = heroCategory | swordCategory | houseCategory;
 //    self.physicsBody.collisionBitMask = worldCategory | slimeCategory | heroCategory;
     self.physicsBody.collisionBitMask = worldCategory;
-    self.physicsBody.restitution = 1.0f;
+    self.physicsBody.restitution = 0.0f;
     self.physicsBody.linearDamping = 0;
     self.physicsBody.friction = 0;
 }
@@ -75,17 +76,6 @@ const int SLIME_IMAGE_NUM = 2;
     int dx = [self.userData[@"speed_dx"] intValue];
     int dy = [self.userData[@"speed_dy"] intValue];
     self.physicsBody.velocity = CGVectorMake( dx, dy);
-}
-
-- (void)moveSlimeHolizon{
-    int dx = [self.userData[@"speed_dx"] intValue];
-    int dy = 0;
-    self.physicsBody.velocity = CGVectorMake( dx, dy);
-}
-
-- (void)moveSlimeVertical{
-    int dy = [self.userData[@"speed_dy"] intValue];
-    self.physicsBody.velocity = CGVectorMake( 0, dy);
 }
 
 @end

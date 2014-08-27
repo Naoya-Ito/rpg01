@@ -26,12 +26,11 @@
     
     // デバッグモード
 #ifdef DEBUG
-    /*
+    
     skView.showsDrawCount = YES;
     skView.showsNodeCount = YES;
     skView.showsFPS = YES;
     skView.showsPhysics = YES;
-     */
 #endif
     
     // オープニングのシーンを表示

@@ -18,31 +18,25 @@ const int QUESTION_IMPORTANT = 2;
     int _MP;
     int _gold;
     int _str;
-    int _def;
     int _int;
+    int _luck;
 }
 
 - (void)createSceneContents
 {
     _story = 0;
     _LV = 1;
-    _HP = 20;
+    _HP = 150;
     _MP = 10;
     _str = 6;
-    _def = 6;
     _int = 6;
+    _luck = 1;
     _gold = 100;
     _nickname = @"普通の";
     self.physicsWorld.contactDelegate = self;
-
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"shop" base_height:self.frame.size.height * 0.3f];
-    [self addChild:map];
     
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
-//    [self messageNode].hidden = NO;
-    
-    [self setPeople];
 }
 
 - (SKMessageNode *)messageNode {
@@ -68,11 +62,11 @@ const int QUESTION_IMPORTANT = 2;
         _story = 21;
     } else if (_story == 21 || _story == 22 || _story == 23 || _story == 24){ // 質問3終了
         _story = 99;
-    } else if (_story == 99){
+    } else if (_story == 99 || _story == 500){
         [self goStatusScene];
     } else if (_story == 100) {
         _story = 101;
-    } else if (_story == 101 || _story == 500) {  // そして冒険へ
+    } else if (_story == 101) {  // そして冒険へ
         _story = 102;
         _params[@"story"] = @"b1";
         [self loadSceneWithParam:@"field" params:_params];;
@@ -83,8 +77,8 @@ const int QUESTION_IMPORTANT = 2;
 
 - (void)goStatusScene{
     NSMutableDictionary *params;
-    if(_HP <= 0){
-        _HP = 1;
+    if(_HP <= 100){
+        _HP = 100;
     }
     if(_MP <= 5){
         _MP = 5;
@@ -92,11 +86,19 @@ const int QUESTION_IMPORTANT = 2;
     if(_str <= 0){
         _str = 1;
     }
+    if(_int <= 3){
+        _int = 3;
+    }
+    if(_luck <= 0){
+        _luck = 1;
+    }
     if(_gold <= 0){
         _gold = 0;
     }
     NSString *nickname = [NSString stringWithFormat:@"%@%@%@", _nickname, _job, _name];
     params = [@{@"name": _name,
+                @"nickname" : _nickname,
+                @"job" : _job,
                 @"nickname" : nickname,
                 @"LV" : @(_LV),
                 @"HP" : @(_HP),
@@ -104,7 +106,7 @@ const int QUESTION_IMPORTANT = 2;
                 @"MP" : @(_MP),
                 @"gold" : @(_gold),
                 @"str" : @(_str),
-                @"def" : @(_def),
+                @"luck" : @(_luck),
                 @"int" : @(_int),
                 @"done" : @"input",
                 @"story" : @"question_end"
@@ -115,62 +117,60 @@ const int QUESTION_IMPORTANT = 2;
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if(alertView.tag == QUESTION_NAME){
         switch (buttonIndex) {
-            // 名乗る名前などない
-            case 0:
+            case 0:             // 名乗る名前などない
                 _LV += 1;
-                _HP += 3;
-                _def += 1;
-                _int += 1;
+                _HP += 30;
                 _gold -= 10;
                 _story = 6;
                 _nickname = @"謎の";
                 _name = @"イケメン";
                 break;
-            // 名前を入力した。
-            case 1:
+            case 1:             // 名前を入力した。
                 _name = [[alertView textFieldAtIndex:0] text];
-                _HP -= 1;
+                _HP -= 10;
                 _str += 1;
+                _MP += 1;
                 _story = 5;
                 break;
         }
     } else if(alertView.tag == QUESTION_JOB){
         switch (buttonIndex) {
             case 0:    // 勇者
-                _LV += 1;
-                _HP += 3;
+                _LV += 2;
+                _HP += 30;
                 _MP += 2;
                 _gold += 10;
                 _str += 1;
-                _def += 1;
                 _int += 1;
+                _luck += 1;
                 _job = @"勇者";
                 _story = 11;
                 break;
             case 1:             // 戦士
-                _HP += 5;
-                _MP -= 7;
-                _gold -= 10;
+                _LV += 1;
+                _HP += 50;
+                _MP -= 6;
+                _gold -= 20;
                 _str += 2;
-                _def += 2;
                 _int -= 1;
                 _job = @"戦士";
                 _story = 12;
-                
                 break;
             case 2:             // 魔法使い
-                _HP -= 3;
+                _LV += 2;
+                _HP -= 30;
                 _MP += 12;
                 _str -= 2;
-                _def -= 1;
                 _int += 5;
                 _job = @"魔術師";
                 _story = 13;
                 break;
             case 3:             // 盗賊
-                _HP -= 1;
+                _LV += 1;
+                _HP -= 10;
                 _MP -= 1;
                 _gold += 70;
+                _luck += 3;
                 _job = @"盗賊";
                 _story = 15;
                 break;
@@ -183,7 +183,7 @@ const int QUESTION_IMPORTANT = 2;
     } else if(alertView.tag == QUESTION_IMPORTANT){
         switch (buttonIndex) {
             case 0:             // 酒代を稼ぐため
-                _HP -= 5;
+                _HP -= 20;
                 _gold += 20;
                 _str += 1;
                 _story = 20;
@@ -191,23 +191,26 @@ const int QUESTION_IMPORTANT = 2;
                 break;
             case 1:             // "復讐"と答えた場合
                 _str += 1;
-                _def -= 1;
+                _luck -= 1;
                 _story = 22;
                 break;
             case 2:             // "修行"と答えた場合
                 _gold -= 3;
-                _HP += 1;
+                _HP += 10;
                 _int += 1;
                 _story = 23;
                 break;
             case 3:             // "平和"と答えた場合
                 _gold -= 7;
-                _HP += 3;
-                _def += 1;
+                _HP += 20;
+                _luck += 1;
                 _story = 24;
                 if([_job isEqualToString:@"盗賊"]){
+                    _nickname = @"正義の";
+                    _LV += 1;
                     _int += 1;
                     _str += 1;
+                    _luck += 1;
                     _MP += 1;
                 }
                 break;
@@ -231,7 +234,7 @@ const int QUESTION_IMPORTANT = 2;
 
 -(void)update:(CFTimeInterval)currentTime {
     if([_params[@"story"] isEqualToString:@"question_end"]){
-        [self messageNode].message = @"まずはチュートリアル戦線で三日間の防衛任務を行いましょう！";
+        [self messageNode].message = @"それでは、準備ができたら出撃しましょう！　モンスター群から町を守るのが我々の使命でありますね。";
         _story = 101;
     } else if(_story == 0){
         [self messageNode].message = @"こんにちはであります大佐！　私は今日から防衛軍に配属されたルビーであります！";
@@ -246,12 +249,14 @@ const int QUESTION_IMPORTANT = 2;
     } else if (_story == 5) {
         if([_name isEqualToString:@"オレツエ"]){
             [self messageNode].message = @"まさかあなたが伝説の剣士オレツエさんでありますか！？　サインをください！！";
-            _HP += 500;
-            _MP += 100;
-            _gold += 200000;
-            _str += 400;
-            _def += 300;
-            _int += 400;
+            _nickname = @"究極";
+            _job = @"勇者";
+            _HP = 150;
+            _MP = 50;
+            _gold = 200000;
+            _str = 99;
+            _luck = 30;
+            _int = 50;
             _story = 499;
         } else {
             [self messageNode].message = [[NSString alloc]initWithFormat:@"%@でありますか。格好良い名前です！", _name];
@@ -276,11 +281,11 @@ const int QUESTION_IMPORTANT = 2;
     } else if (_story == 12) {
         [self messageNode].message = @"脳筋の戦士……大佐は体育会系でございましたか。その優れた攻撃力と防御力は是非見習いたいであります！";
     } else if (_story == 13) {
-        [self messageNode].message = @"魔法を使えるとは格好良いであります！　防御力が低くて上級者向きでありますな。";
+        [self messageNode].message = @"魔法を使えるとは格好良いであります！　このゲームでは魔法が凄く強いですもんね。";
     } else if (_story == 14) {
-        [self messageNode].message = @"大佐にもそんな時期があったんでありますね。";
+        [self messageNode].message = @"大佐にもそんな時期があったんでありますね。いよっ、色男。";
     } else if (_story == 15) {
-        [self messageNode].message = @"……堂々と犯罪者自慢なんかして、逮捕されても知らないでありますよ。";
+        [self messageNode].message = @"……堂々と犯罪者自慢なんかして、逮捕されても知らないですよ。";
     } else if (_story == 18) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問3" message:@"入隊の目的は？" delegate:self cancelButtonTitle:nil otherButtonTitles:@"酒代を稼ぐため", @"復讐のため", @"修行のため", @"世界平和のため", nil];
         alertView.tag = QUESTION_IMPORTANT;
@@ -289,11 +294,11 @@ const int QUESTION_IMPORTANT = 2;
     } else if (_story == 20) {
         [self messageNode].message = @"気が合うであります！　こんど一杯飲もうであります。";
     } else if (_story == 21) {
-        [self messageNode].message = @"ウェーイ！とかそういうノリは苦手なので静かに飲みましょう！";
+        [self messageNode].message = @"けどウェーイ！とかそういうノリは苦手なので静かに飲みましょう！";
     } else if (_story == 22) {
-        [self messageNode].message = @"復讐ですか……モンスターに恋人でも殺されましたか？　どう生きようかは大佐の自由なので、私からは何も言いません！";
+        [self messageNode].message = @"復讐ですか……悲しい戦いも早く終わると良いですね。";
     } else if (_story == 23) {
-        [self messageNode].message = @"修行でありますか……目指せLV99でありますね。";
+        [self messageNode].message = @"修行でありますか……目指せLV99ですね。";
     } else if (_story == 24) {
         if([_job isEqualToString:@"盗賊"]){
             [self messageNode].message = @"盗賊なのに界平和を目指すとは……義賊でありますね。格好良いっす！";
@@ -303,7 +308,7 @@ const int QUESTION_IMPORTANT = 2;
     } else if (_story == 99) {
         [self messageNode].message = [NSString stringWithFormat:@"質問は以上であります！　話を聞く限り大佐のパラメーターは次の通りでありますね。"];
     } else if (_story == 500){
-        [self messageNode].message = @"では、サクッとクリアしちゃってください！";
+        [self messageNode].message = @"こちらがあなた様の究極ステータスであります！";
     }
 }
 

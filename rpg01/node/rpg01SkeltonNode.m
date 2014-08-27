@@ -8,14 +8,14 @@ const int SKELTON_IMAGE_NUM = 2;
     rpg01SkeltonNode *node = [rpg01SkeltonNode spriteNodeWithTexture:[atlas textureNamed:@"skelton0"]];
     node.name = ENEMY_SKELTON_NAME;
     node.userData =  @{ @"name" : @"スケルトン",
-                        @"life" : @(50),
+                        @"life" : @(66),
                         @"exp" : @(2000),
-                        @"speed_dx" : @(180),
+                        @"speed_dx" : @(160),
                         @"speed_dy" : @(0),
                         @"attacked" : @(1),
-                        @"str" : @(2)
+                        @"str" : @(6)
                         }.mutableCopy;
-    node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
+    node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE*2)];
     node.physicsBody.affectedByGravity = YES;
     node.physicsBody.allowsRotation = NO;
     node.physicsBody.categoryBitMask = enemyCategory;
@@ -24,7 +24,7 @@ const int SKELTON_IMAGE_NUM = 2;
     node.physicsBody.restitution = 1.0f;
     node.physicsBody.linearDamping = 0;
     node.physicsBody.friction = 0;
-    node.physicsBody.usesPreciseCollisionDetection = YES;
+//    node.physicsBody.usesPreciseCollisionDetection = YES;
     
     // 敵のスピード
     int dx = [node.userData[@"speed_dx"] intValue];

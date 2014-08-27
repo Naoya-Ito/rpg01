@@ -4,12 +4,14 @@
 #import "rpg01InputScene.h"
 #import "rpg01PlayScene.h"
 #import "rpg01GameOverScene.h"
-#import "rpg01StoryScene.h"
 #import "rpg01StatusScene.h"
 #import "rpg01FieldScene.h"
+#import "rpg01ShopScene.h"
+
 
 #import "rpg01SlimeNode.h"
 #import "rpg01SisterNode.h"
+
 
 @implementation rpg01BaseScene
 
@@ -18,6 +20,7 @@ static const CGFloat SCENE_DURATION = 0.6f;
 - (id)initWithSize:(CGSize)size name:(NSString *)name {
     if (self = [super initWithSize:size]) {
     }
+    _isBGMPlaying = NO;
     return self;
 }
 
@@ -55,12 +58,12 @@ static const CGFloat SCENE_DURATION = 0.6f;
         scene = [[rpg01GameOverScene alloc] initWithParam:self.size name:name params:params];
     } else if ([name hasPrefix:@"opening"]) {
         scene = [[rpg01OpeningScene alloc] initWithParam:self.size name:name params:params];
-    } else if ([name hasPrefix:@"story"]) {
-        scene = [[rpg01StoryScene alloc] initWithParam:self.size name:name params:params];
     } else if ([name hasPrefix:@"status"]) {
         scene = [[rpg01StatusScene alloc] initWithParam:self.size name:name params:params];
     } else if ([name hasPrefix:@"field"]) {
         scene = [[rpg01FieldScene alloc] initWithParam:self.size name:name params:params];
+    } else if ([name hasPrefix:@"shop"]) {
+        scene = [[rpg01ShopScene alloc] initWithParam:self.size name:name params:params];
     } else {
         NSLog(@"not exist scene. scene = %@", scene);
     }
@@ -217,6 +220,10 @@ static const CGFloat SCENE_DURATION = 0.6f;
 }
 
 - (void)playBGM:(NSString*)name type:(NSString *)type{
+    if(_isBGMPlaying == YES){
+        return;
+    }
+    _isBGMPlaying = YES;
     NSString* path = [[NSBundle mainBundle]
                       pathForResource:name ofType:type];
     NSURL* url = [NSURL fileURLWithPath:path];
@@ -224,8 +231,15 @@ static const CGFloat SCENE_DURATION = 0.6f;
                     initWithContentsOfURL:url error:nil];
     _audioPlayer.numberOfLoops = -1;
     [_audioPlayer play];
+}
+
+- (void)stopBGM{
+    if(_isBGMPlaying == NO){
+        return;
+    }
+    _isBGMPlaying = NO;
     //    [audio pause]
-    //    [audio stop]
+    [_audioPlayer stop];
 }
 
 - (void)outputGold{

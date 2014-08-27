@@ -5,6 +5,7 @@
 @interface rpg01BaseScene : SKScene{
     NSMutableDictionary *_params;
     AVAudioPlayer *_audioPlayer;
+    BOOL _isBGMPlaying;
 }
 
 @property (nonatomic) BOOL contentCreated;
@@ -21,5 +22,6 @@
 - (void)makeButton:(CGPoint)point name:(NSString *)name text:(NSString*)text;
 - (void)makeButtonWithSize:(CGPoint)point name:(NSString *)name text:(NSString*)text size:(CGSize)size;
 - (void)playBGM:(NSString*)name type:(NSString *)type;
+- (void)stopBGM;
 - (void)outputGold;
 @end

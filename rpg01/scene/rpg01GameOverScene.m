@@ -13,6 +13,8 @@
     [self addChild:message];
     
     [self performSelector:@selector(_goTitle) withObject:Nil afterDelay:6.0f];
+    
+    [self stopBGM];
 }
 
 - (void)_goTitle {

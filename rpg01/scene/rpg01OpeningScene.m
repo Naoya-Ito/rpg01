@@ -88,11 +88,11 @@
                     @"gold" : @"10000",
                     @"HP" : @"23",
                     @"currentHP" : @"23",
-                    @"MP" : @"12",
-                    @"str" : @"5",
-                    @"def" : @"5",
-                    @"int" : @"5",                    
-                    @"story" : @"b3",
+                    @"MP" : @"23",
+                    @"str" : @"10",
+                    @"def" : @"10",
+                    @"int" : @"10",
+                    @"story" : @"b7",
                     @"done" : @"title"
                     } mutableCopy];
         [self loadSceneWithParam:@"play" params:params];
@@ -121,7 +121,6 @@
                     @"HP" : @"3",
                     @"currentHP" : @"100",
                     @"MP" : @"150",
-                    @"gold" : @"10000",
                     @"str" : @"32",
                     @"def" : @"15",
                     @"int" : @"18",
@@ -134,17 +133,16 @@
         params = [@{@"name": @"ikemen",
                     @"nickname": @"テスト戦士イケメン",
                     @"LV" : @"1",
-                    @"gold" : @"100",
-                    @"HP" : @"100",
-                    @"currentHP" : @"100",
-                    @"MP" : @"150",
+                    @"gold" : @"1000000000",
+                    @"HP" : @"150",
+                    @"MP" : @"50",
                     @"str" : @"32",
                     @"def" : @"15",
                     @"int" : @"18",
-                    @"story" : @"b1",
-                    @"done" : @"opening"
+                    @"story" : @"b8",
+                    @"done" : @"title"
                     } mutableCopy];
-        [self loadSceneWithParam:@"status" params:params];
+        [self loadSceneWithParam:@"field" params:params];
     }
     [self touchesCancelled:touches withEvent:event];
 }

@@ -9,13 +9,12 @@ static const CGFloat HERO_SPEED = 1.5f;
 static const uint32_t heroCategory = 0x1 << 0;
 static const uint32_t swordCategory = 0x1 << 1;
 static const uint32_t enemyCategory = 0x1 << 2;
-static const uint32_t boxCategory = 0x1 << 3;
+
 static const uint32_t slimeCategory = 0x1 << 4;
 static const uint32_t doorCategory = 0x1 << 5;
-static const uint32_t sisterCategory = 0x1 << 6;
+static const uint32_t metalBodyCategory = 0x1 << 6;
 static const uint32_t houseCategory = 0x1 << 7;
 static const uint32_t worldCategory = 0x1 << 8;
-
 
 static NSString * const HERO_NAME = @"hero";
 static NSString * const ENEMY_NAME = @"enemy";
