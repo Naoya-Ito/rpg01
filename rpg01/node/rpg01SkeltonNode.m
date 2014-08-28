@@ -7,13 +7,13 @@ const int SKELTON_IMAGE_NUM = 2;
     SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"skelton"];
     rpg01SkeltonNode *node = [rpg01SkeltonNode spriteNodeWithTexture:[atlas textureNamed:@"skelton0"]];
     node.name = ENEMY_SKELTON_NAME;
-    node.userData =  @{ @"name" : @"スケルトン",
+    node.userData =  @{ @"name" : @"メガデス",
                         @"life" : @(66),
-                        @"exp" : @(2000),
+                        @"exp" : @(40),
                         @"speed_dx" : @(160),
                         @"speed_dy" : @(0),
                         @"attacked" : @(1),
-                        @"str" : @(6)
+                        @"str" : @(5)
                         }.mutableCopy;
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE*2)];
     node.physicsBody.affectedByGravity = YES;

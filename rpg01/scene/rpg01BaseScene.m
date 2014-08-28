@@ -7,10 +7,10 @@
 #import "rpg01StatusScene.h"
 #import "rpg01FieldScene.h"
 #import "rpg01ShopScene.h"
-
+#import "rpg01LibraryScene.h"
+#import "rpg01EndingScene.h"
 
 #import "rpg01SlimeNode.h"
-#import "rpg01SisterNode.h"
 
 
 @implementation rpg01BaseScene
@@ -64,6 +64,10 @@ static const CGFloat SCENE_DURATION = 0.6f;
         scene = [[rpg01FieldScene alloc] initWithParam:self.size name:name params:params];
     } else if ([name hasPrefix:@"shop"]) {
         scene = [[rpg01ShopScene alloc] initWithParam:self.size name:name params:params];
+    } else if ([name hasPrefix:@"library"]) {
+        scene = [[rpg01LibraryScene alloc] initWithParam:self.size name:name params:params];
+    } else if ([name hasPrefix:@"ending"]) {
+        scene = [[rpg01EndingScene alloc] initWithParam:self.size name:name params:params];
     } else {
         NSLog(@"not exist scene. scene = %@", scene);
     }
@@ -129,7 +133,7 @@ static const CGFloat SCENE_DURATION = 0.6f;
     timeLabel.fontColor = [SKColor blackColor];
     timeLabel.verticalAlignmentMode = SKLabelVerticalAlignmentModeTop;
     timeLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
-    timeLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - TILE_SIZE * 3);
+    timeLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - TILE_SIZE * 2);
     timeLabel.fontSize = 14.0f;
     [self addChild:timeLabel];
 }
@@ -143,21 +147,6 @@ static const CGFloat SCENE_DURATION = 0.6f;
     scoreLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - scoreLabel.frame.size.width - 5.0f, CGRectGetMaxY(self.frame) - 20.0f);
     scoreLabel.fontSize = 14.0f;
     [self addChild:scoreLabel];
-}
-
-
-// 人々の配置
-- (void)setPeople{
-    rpg01SisterNode *sister = [rpg01SisterNode sister];
-    sister.position = CGPointMake(TILE_SIZE*8.5, self.frame.size.height - TILE_SIZE*3);
-    sister.name = SISTER_NAME;
-    [self addChild:sister];
-    
-    rpg01SlimeNode *enemy = [rpg01SlimeNode slime];
-    enemy.position = CGPointMake(200.0f, 300.0f);
-    enemy.name = ENEMY_NAME;
-    [self addChild:enemy];
-    [enemy slimeAnimation];
 }
 
 - (void)addController:(CGFloat)_base_height{
@@ -175,12 +164,12 @@ static const CGFloat SCENE_DURATION = 0.6f;
     [self addChild:square];
     
     SKSpriteNode *fireButton = [SKSpriteNode spriteNodeWithImageNamed:@"fireButton"];
-    fireButton.position = CGPointMake( 50, 80.0);
+    fireButton.position = CGPointMake( 100, 65.0);
     fireButton.name = @"fireButton";
     [self addChild:fireButton];
     
     SKSpriteNode *attackButton = [SKSpriteNode spriteNodeWithImageNamed:@"swordButton"];
-    attackButton.position = CGPointMake( self.frame.size.width - 80, 80.0);
+    attackButton.position = CGPointMake( self.frame.size.width - 80, 65.0);
     attackButton.name = @"attackButton";
     [self addChild:attackButton];
 }
@@ -244,7 +233,10 @@ static const CGFloat SCENE_DURATION = 0.6f;
 
 - (void)outputGold{
     SKLabelNode *scoreLabel = (SKLabelNode *)[self childNodeWithName:SCORE_NAME];
-    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %05d", [_params[@"gold"] intValue]];
+    if([_params[@"_gold"] intValue] > 999999 ){
+        _params[@"_gold"] = @"999999";
+    }
+    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %d", [_params[@"gold"] intValue]];
 }
 
 @end

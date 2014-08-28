@@ -16,10 +16,9 @@ const int BAT_IMAGE_NUM = 2;
     } else {
         dx = -80;
     }
-    
     node.userData =  @{ @"name" : @"コウモリ",
                         @"life" : @(10),
-                        @"exp" : @(5),
+                        @"exp" : @(7),
                         @"speed_dx" : @(dx),
                         @"speed_dy" : @(-80.0f),
                         @"attacked" : @(3),

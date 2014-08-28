@@ -4,8 +4,6 @@ extern const CGFloat TILE_SIZE;
 static NSString * const FONT_NORMAL = @"";
 static const CGFloat FONT_SIZE = 16.0f;
 
-static const CGFloat HERO_SPEED = 1.5f;
-
 static const uint32_t heroCategory = 0x1 << 0;
 static const uint32_t swordCategory = 0x1 << 1;
 static const uint32_t enemyCategory = 0x1 << 2;

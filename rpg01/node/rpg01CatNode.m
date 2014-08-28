@@ -5,7 +5,7 @@
 + (id)cat{
     rpg01CatNode *node = [rpg01CatNode spriteNodeWithImageNamed:@"cat"];
     node.name = ENEMY_CAT_NAME;
-    node.userData =  @{ @"name" : @"ネコ",
+    node.userData =  @{ @"name" : @"わるネコ",
                         @"life" : @(7),
                         @"exp" : @(5),
                         @"speed_dx" : @(0),

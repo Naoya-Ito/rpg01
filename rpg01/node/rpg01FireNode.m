@@ -15,6 +15,16 @@ static const CGFloat FIRE_DURATION = 1.0f;
     return fire;
 }
 
++ (id)blueFire:(CGPoint)from {
+    NSString *firePath = [[NSBundle mainBundle] pathForResource:@"blue_fire" ofType:@"sks"];
+    rpg01FireNode *fire = [NSKeyedUnarchiver unarchiveObjectWithFile:firePath];
+    fire.name = FIRE_NAME;
+    fire.userData =  @{ @"type" : @"magic"
+                        }.mutableCopy;
+    fire.position = from;
+    return fire;
+}
+
 - (void)setPhysic{
     self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
     self.physicsBody.affectedByGravity = NO;

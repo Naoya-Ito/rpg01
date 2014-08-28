@@ -4,13 +4,13 @@
 + (id)dark{
     rpg01DarkNode *node = [rpg01DarkNode spriteNodeWithImageNamed:@"darkHeroDown0"];
     node.name = @"golem";
-    node.userData =  @{ @"name" : @"光と影",
+    node.userData =  @{ @"name" : @"シャドー",
                         @"life" : @(210),
-                        @"exp" : @(5000),
+                        @"exp" : @(999),
                         @"speed_dx" : @(210),
                         @"speed_dy" : @(0),
                         @"attacked" : @(0),
-                        @"str" : @(16)
+                        @"str" : @(9)
                         }.mutableCopy;
 
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(45, 32)];

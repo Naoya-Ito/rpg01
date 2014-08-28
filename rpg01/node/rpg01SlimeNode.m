@@ -23,9 +23,9 @@ const int SLIME_IMAGE_NUM = 2;
     SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"greenSlime"];
     rpg01SlimeNode *node = [rpg01SlimeNode spriteNodeWithTexture:[atlas textureNamed:@"greenSlime0"]];
     node.name = ENEMY_NAME;
-    node.userData =  @{ @"name" : @"凶悪ピーマン",
+    node.userData =  @{ @"name" : @"ピーマン",
                         @"life" : @(10),
-                        @"exp" : @(40),
+                        @"exp" : @(44),
                         @"speed_dx" : @(0),
                         @"speed_dy" : @(-70.0f),
                         @"attacked" : @(2),

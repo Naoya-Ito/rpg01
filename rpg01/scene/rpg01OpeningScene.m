@@ -3,6 +3,8 @@
 #import "rpg01InputScene.h"
 #import "rpg01PlayScene.h"
 #import "rpg01SlimeNode.h"
+#import "rpg01HeroNode.h"
+#import "rpg01GhostNode.h"
 
 @implementation rpg01OpeningScene
 
@@ -14,11 +16,11 @@
 - (void)createSceneContents
 {
     SKLabelNode *titleLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-    titleLabel.text = @"勇者防衛軍";
-    titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
+    titleLabel.text = @"戦場の勇者";
+    titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) + 100.0f);
     [self addChild:titleLabel];
     
-    [self makeButton:CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 30.0f) name:START_NAME text:@"はじめる" ];
+    [self makeButton:CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 10.0f) name:START_NAME text:@"はじめる" ];
     
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     if([defaults objectForKey:@"params"]){
@@ -27,6 +29,16 @@
 
         [self makeButton:CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 70.0f) name:@"continue" text:@"つづき"];
     }
+    
+    rpg01HeroNode *hero = [rpg01HeroNode hero];
+    hero.position = CGPointMake(100.0, CGRectGetMidY(self.frame) - 60.0f);
+    [hero walkRight];
+    [self addChild:hero];
+
+    rpg01GhostNode *ghost = [rpg01GhostNode ghost];
+    ghost.position = CGPointMake(CGRectGetMidX(self.frame) + 100.0f, CGRectGetMidY(self.frame));
+    ghost.physicsBody.dynamic = NO;
+    [self addChild:ghost];
     
     [self addSlime];
     [self addFire];
@@ -80,69 +92,6 @@
         [self loadSceneWithParam:@"title" params:params];
     } else if ([nodeAtPoint.name isEqualToString:@"continue"]){
         [self loadSceneWithParam:@"field" params:_params];
-    } else if ([nodeAtPoint.name isEqualToString:FIRE_NAME]){
-        NSMutableDictionary *params;
-        params = [@{@"name": @"ikemen",
-                    @"nickname": @"テスト戦士イケメン",
-                    @"LV" : @"1",
-                    @"gold" : @"10000",
-                    @"HP" : @"23",
-                    @"currentHP" : @"23",
-                    @"MP" : @"23",
-                    @"str" : @"10",
-                    @"def" : @"10",
-                    @"int" : @"10",
-                    @"story" : @"b7",
-                    @"done" : @"title"
-                    } mutableCopy];
-        [self loadSceneWithParam:@"play" params:params];
-    } else if ([nodeAtPoint.name isEqualToString:GREEN_FIRE_NAME]){
-        NSMutableDictionary *params;
-        params = [@{@"name": @"ikemen",
-                    @"nickname": @"テスト戦士イケメン",
-                    @"LV" : @"1",
-                    @"gold" : @"10000",
-                    @"HP" : @"32",
-                    @"currentHP" : @"32",
-                    @"MP" : @"34",
-                    @"str" : @"12",
-                    @"def" : @"13",
-                    @"int" : @"14",
-                    @"story" : @"b1",
-                    @"done" : @"story"
-                    } mutableCopy];
-        [self loadSceneWithParam:@"play" params:params];
-    } else if ([nodeAtPoint.name isEqualToString:BLUE_FIRE_NAME]){
-        NSMutableDictionary *params;
-        params = [@{@"name": @"ikemen",
-                    @"nickname": @"テスト戦士イケメン",
-                    @"LV" : @"1",
-                    @"gold" : @"10000",
-                    @"HP" : @"3",
-                    @"currentHP" : @"100",
-                    @"MP" : @"150",
-                    @"str" : @"32",
-                    @"def" : @"15",
-                    @"int" : @"18",
-                    @"story" : @"b1",
-                    @"done" : @"title"
-                    } mutableCopy];
-        [self loadSceneWithParam:@"field" params:params];
-    } else if ([nodeAtPoint.name isEqualToString:ENEMY_NAME]){
-        NSMutableDictionary *params;
-        params = [@{@"name": @"ikemen",
-                    @"nickname": @"テスト戦士イケメン",
-                    @"LV" : @"1",
-                    @"gold" : @"1000000000",
-                    @"HP" : @"150",
-                    @"MP" : @"50",
-                    @"str" : @"32",
-                    @"def" : @"15",
-                    @"int" : @"18",
-                    @"story" : @"b8",
-                    @"done" : @"title"
-                    } mutableCopy];
-        [self loadSceneWithParam:@"field" params:params];
     }
     [self touchesCancelled:touches withEvent:event];
 }

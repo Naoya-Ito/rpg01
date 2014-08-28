@@ -5,6 +5,9 @@
 - (void)createSceneContents
 {
     int exp = [_params[@"LV"] intValue] * 10;
+    if(exp > 1000){
+        exp = 1000;
+    }
     int gold = [_params[@"gold"] intValue];
     BOOL canLVUP = NO;
     if([_params[@"story"] isEqualToString:@"question_end"] || exp > gold){
@@ -37,7 +40,7 @@
     [self displayColumn:@"luck" displayName:@"幸運" height:110.0f];
     
     // 戻るボタン
-    CGPoint point = CGPointMake(CGRectGetMidX(self.frame), 80.0f);
+    CGPoint point = CGPointMake(CGRectGetMidX(self.frame), 60.0f);
     if([_params[@"story"] isEqualToString:@"question_end"]){
         [self makeButton:point name:@"back" text:@"次へ"];
     } else {
@@ -47,31 +50,31 @@
     // ステータスアップボタン
     if(canLVUP){
         SKLabelNode *expLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-        expLabel.text = [NSString stringWithFormat:@"LVupに必要な金：%d", [_params[@"LV"] intValue]*10];
+        expLabel.text = [NSString stringWithFormat:@"LVupに必要な金：%d", exp];
         expLabel.name = @"exp";
         expLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 180.0f);
         [self addChild:expLabel];
         
         CGPoint point;
-        if([_params[@"HP"] intValue] < 150){
-            point = CGPointMake(self.frame.size.width -  150.0f, 320.0f);
+        if([_params[@"HP"] intValue] < 350){
+            point = CGPointMake(self.frame.size.width -  120.0f, 280.0f);
             [self makeButton:point name:@"HPUP" text:@"UP"];
         }
         if([_params[@"MP"] intValue] < 50){
-            point = CGPointMake(self.frame.size.width -  150.0f, 280.0f);
+            point = CGPointMake(self.frame.size.width -  120.0f, 240.0f);
             [self makeButton:point name:@"MPUP" text:@"UP"];
         }
 
         if([_params[@"str"] intValue] < 999){
-            point = CGPointMake(self.frame.size.width -  150.0f, 240.0f);
+            point = CGPointMake(self.frame.size.width -  120.0f, 200.0f);
             [self makeButton:point name:@"strUP" text:@"UP"];
         }
         if([_params[@"int"] intValue] < 50){
-            point = CGPointMake(self.frame.size.width -  150.0f, 200.0f);
+            point = CGPointMake(self.frame.size.width -  120.0f, 160.0f);
             [self makeButton:point name:@"intUP" text:@"UP"];
         }
         if([_params[@"luck"] intValue] < 30){
-            point = CGPointMake(self.frame.size.width -  150.0f, 160.0f);
+            point = CGPointMake(self.frame.size.width -  120.0f, 120.0f);
             [self makeButton:point name:@"luckUP" text:@"UP"];
         }
     }
@@ -91,6 +94,7 @@
     SKNode *nodeAtPoint = [self nodeAtPoint:[touch locationInNode:self]];
     
     if ([nodeAtPoint.name isEqual:@"back"]) {
+        _params[@"currentHP"] = _params[@"HP"];
         NSString *back = _params[@"done"];
         [self loadSceneWithParam:back params:_params];
     } else if ([nodeAtPoint.name isEqualToString:@"HPUP"]) {
@@ -103,11 +107,17 @@
         [self LVUP:@"def"];
     } else if ([nodeAtPoint.name isEqualToString:@"intUP"]) {
         [self LVUP:@"int"];
+    } else if ([nodeAtPoint.name isEqualToString:@"luckUP"]) {
+        [self LVUP:@"luck"];
     }
 }
 
 - (void)LVUP:(NSString *)param{
     int exp = [_params[@"LV"] intValue]*10;
+    if(exp > 1000){
+        exp = 1000;
+    }
+    
     if([_params[@"gold"] intValue] < exp){
         return;
     }
@@ -116,12 +126,9 @@
     } else {
         _params[param] = [NSString stringWithFormat:@"%d",[_params[param] intValue] + 1];
     }
-    _params[@"gold"] = [NSString stringWithFormat:@"%d", [_params[@"gold"] intValue] - [_params[@"LV"] intValue] * 10];
+    _params[@"gold"] = [NSString stringWithFormat:@"%d", [_params[@"gold"] intValue] - exp];
     _params[@"LV"] = [NSString stringWithFormat:@"%d", [_params[@"LV"] intValue] + 1 ];
     
-    exp = [_params[@"LV"] intValue]*10;
-    
-
     SKLabelNode *LVLabel = (SKLabelNode *)[self childNodeWithName:@"LV"];
     LVLabel.text = [NSString stringWithFormat:@"LV:%@", _params[@"LV"]];
     
@@ -138,10 +145,10 @@
         paramLabel.text = [NSString stringWithFormat:@"MP:%@", _params[param]];
     } else if([param isEqualToString:@"str"]){
         paramLabel.text = [NSString stringWithFormat:@"筋力:%@", _params[param]];
-    } else if([param isEqualToString:@"def"]){
-        paramLabel.text = [NSString stringWithFormat:@"防御:%@", _params[param]];
     } else if([param isEqualToString:@"int"]){
         paramLabel.text = [NSString stringWithFormat:@"魔力:%@", _params[param]];
+    } else if([param isEqualToString:@"luck"]){
+        paramLabel.text = [NSString stringWithFormat:@"幸運:%@", _params[param]];
     }
     if([_params[@"gold"] intValue] < exp){
         [self hiddenUPLabel:@"HPUP"];
@@ -149,14 +156,19 @@
         [self hiddenUPLabel:@"strUP"];
         [self hiddenUPLabel:@"defUP"];
         [self hiddenUPLabel:@"intUP"];
+        [self hiddenUPLabel:@"luckUP"];
     }
-    if([_params[@"HP"] intValue] >= 150){
+    if([_params[@"HP"] intValue] >= 350){
         [self hiddenUPLabel:@"HPUP"];
-        _params[@"HP"] = @"150";
+        _params[@"HP"] = @"350";
     }
     if([_params[@"MP"] intValue] >= 50){
         [self hiddenUPLabel:@"MPUP"];
-        _params[@"HP"] = @"50";
+        _params[@"MP"] = @"50";
+    }
+    if([_params[@"luck"] intValue] >= 30){
+        [self hiddenUPLabel:@"luckUP"];
+        _params[@"luck"] = @"30";
     }
 }
 

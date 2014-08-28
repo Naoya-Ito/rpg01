@@ -4,7 +4,7 @@
 + (id)ghost{
     rpg01GhostNode *node = [rpg01GhostNode spriteNodeWithImageNamed:@"ghost"];
     node.name = @"ghost";
-    node.userData =  @{ @"name" : @"ションボリ霊",
+    node.userData =  @{ @"name" : @"ユーレイ",
                         @"life" : @(12),
                         @"exp" : @(22),
                         @"speed_dx" : @(0),

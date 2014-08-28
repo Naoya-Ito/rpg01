@@ -2,6 +2,7 @@
 
 @interface rpg01SwordNode : SKSpriteNode
 + (id)sword;
-- (NSMutableArray *)readTextures;
+- (NSMutableArray *)readTextures:(int)num;
 - (void)swordMove;
+- (void)swordMoveMidare;
 @end

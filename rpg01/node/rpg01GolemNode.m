@@ -6,10 +6,10 @@
     rpg01GolemNode *node = [rpg01GolemNode spriteNodeWithImageNamed:@"golem"];
     node.name = @"golem";
     node.userData =  @{ @"name" : @"ゴーレム",
-                        @"life" : @(150),
+                        @"life" : @(110),
                         @"exp" : @(40),
                         @"speed_dx" : @(0),
-                        @"speed_dy" : @(-40.0f),
+                        @"speed_dy" : @(-35.0f),
                         @"attacked" : @(0),
                         @"str" : @(15)
                         }.mutableCopy;

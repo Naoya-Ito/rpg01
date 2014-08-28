@@ -11,7 +11,6 @@
 #import "rpg01GolemNode.h"
 #import "rpg01DarkNode.h"
 #import "rpg01FireNode.h"
-#import "rpg01DoorNode.h"
 #import "rpg01MapNode.h"
 
 static inline CGFloat skRandf() {
@@ -27,15 +26,12 @@ const int FIRE_COST = 5;
 @end
 
 @implementation rpg01PlayScene {
-    BOOL _contentCreated;
     BOOL _onceFlag;
     NSTimeInterval _lastUpdateTimeInterval;
     NSTimeInterval _timeSinceStart;
     NSTimeInterval _timeSinceLastSecond;
     NSTimeInterval _stageTime;
     int _fires;
-    int _boxes;
-    int _skelton;
     int _score;
     int _hp;
     int _MAXHP;
@@ -46,12 +42,15 @@ const int FIRE_COST = 5;
     int _int;
     NSString *_direction;
     NSString *_weaponType;
-    BOOL _doorFlag;
     BOOL _clearFlag;
     double _base_height;
-    BOOL _isWakeUp;
+    BOOL _displayedLife;
+    int _story;
     int _fireDistance;
-
+    BOOL _isWakeUp;
+    BOOL _isMidare;
+    BOOL _isSpeed;
+    BOOL _isBlue;
 }
 
 -(void)createSceneContents{
@@ -59,15 +58,13 @@ const int FIRE_COST = 5;
     _timeSinceStart = 0;
     _timeSinceLastSecond = 0;
     _fires = 0;
-    _skelton = 0;
-    _boxes = 0;
     _score = [_params[@"gold"] intValue];
-    _doorFlag = NO;
     _clearFlag = NO;
     _weaponType = @"sword";
     _base_height = self.size.height*0.2f;
     _direction = @"right";
     _onceFlag = NO;
+    _displayedLife = NO;
     
     _hp = [_params[@"HP"] intValue];
     _MAXHP = [_params[@"HP"] intValue];
@@ -76,19 +73,8 @@ const int FIRE_COST = 5;
     _str = [_params[@"str"] intValue];
     _luck = [_params[@"luck"] intValue];
     _int = [_params[@"int"] intValue];
+    _story = [_params[@"story"] intValue];
 
-    if([_params[@"cons"] isEqualToString:@"OK"]){
-        _fireDistance = 300;
-    } else {
-        _fireDistance = 180;
-    }
-    
-    if([_params[@"wakeUp"] isEqualToString:@"OK"]){
-        _isWakeUp = YES;
-    } else {
-        _isWakeUp = NO;
-    }
-    
     self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
     self.physicsBody.categoryBitMask = worldCategory;
     self.physicsBody.friction = 0.0;
@@ -98,35 +84,44 @@ const int FIRE_COST = 5;
     rpg01HeroNode *hero = [rpg01HeroNode hero];
     [self _addHero:CGPointMake(CGRectGetMidX(self.frame), _base_height + hero.size.height)];
 
-    if([_params[@"story"] isEqualToString:@"b1"]){
-        [self createB1Stage];
-    } else if([_params[@"story"] isEqualToString:@"b2"]){
-        [self createB2Stage];
-    } else if([_params[@"story"] isEqualToString:@"b3"]){
-        [self createB3Stage];
-    } else if([_params[@"story"] isEqualToString:@"b4"]){
-        [self createB4Stage];
-    } else if([_params[@"story"] isEqualToString:@"b5"]){
-        [self createB5Stage];
-    } else if([_params[@"story"] isEqualToString:@"b6"]){
-        [self createB5Stage];
-    } else if([_params[@"story"] isEqualToString:@"b7"]){
-        [self createB5Stage];
-    } else if([_params[@"story"] isEqualToString:@"b8"]){
-        _stageTime = 60.0f;
-        [self createB5Stage];
-    } else if([_params[@"story"] isEqualToString:@"final"]){
-        [self createFinalStage];
-    }
-    
+    [self createStage];
+    [self setSkill];
     [self displayHouseHPBar];
     [self addStatusFrame];
     [self addController:_base_height];
     
-    if([_params[@"story"] isEqualToString:@"final"]){
+    if(_story == 99){
         [self playBGM:@"final" type:@"mp3"];
     } else {
         [self playBGM:@"tekichi" type:@"wav"];
+    }
+}
+
+- (void)setSkill{
+    if([_params[@"cons"] isEqualToString:@"OK"]){
+        _fireDistance = 300;
+    } else {
+        _fireDistance = 180;
+    }
+    if([_params[@"wakeUp"] isEqualToString:@"OK"]){
+        _isWakeUp = YES;
+    } else {
+        _isWakeUp = NO;
+    }
+    if([_params[@"midare"] isEqualToString:@"OK"]){
+        _isMidare = YES;
+    } else {
+        _isMidare = NO;
+    }
+    if([_params[@"speed"] isEqualToString:@"OK"]){
+        _isSpeed = YES;
+    } else {
+        _isSpeed = NO;
+    }
+    if([_params[@"blue"] isEqualToString:@"OK"]){
+        _isBlue = YES;
+    } else {
+        _isBlue = NO;
     }
 }
 
@@ -146,41 +141,97 @@ const int FIRE_COST = 5;
     [self addChild:square];
 }
 
-- (void)createB1Stage{
-    _stageTime = 20.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b1" base_height:_base_height];
-    [self addChild:map];
+
+- (void)createStage{
+    switch(_story){
+        case 1:{
+            _stageTime = 20.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b1" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 2:{
+            _stageTime = 30.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b2" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 3:{
+            _stageTime = 30.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b4" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 4:{
+            _stageTime = 30.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b3" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 5:{
+            _stageTime = 30.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 6:{
+            _stageTime = 40.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 7:{
+            _stageTime = 40.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 8:{
+            _stageTime = 40.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 9:{
+            _stageTime = 40.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 10:{
+            _stageTime = 45.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 11:{
+            _stageTime = 45.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 12:{
+            _stageTime = 60.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 13:{
+            _stageTime = 60.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+            
+        case 99:{
+            _stageTime = 87.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"final" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+    }
 }
 
-- (void)createB2Stage{
-        _stageTime = 30.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b2" base_height:_base_height];
-    [self addChild:map];
-}
-
-- (void)createB3Stage{
-    _stageTime = 30.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b3" base_height:_base_height];
-    [self addChild:map];
-}
-
-- (void)createB4Stage{
-    _stageTime = 30.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b4" base_height:_base_height];
-    [self addChild:map];
-}
-
-- (void)createB5Stage{
-    _stageTime = 30.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
-    [self addChild:map];
-}
-
-- (void)createFinalStage{
-    _stageTime = 87.0f;
-    rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"final" base_height:_base_height];
-    [self addChild:map];
-}
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
@@ -190,7 +241,6 @@ const int FIRE_COST = 5;
     if ([nodeAtPoint.name isEqualToString:@"attackButton" ]) {
         rpg01HeroNode *hero = (rpg01HeroNode *)[self childNodeWithName:HERO_NAME];
         _direction = @"up";
-        [hero walkUp];
         [hero attack];
         [self _swordAttack:hero.position];
     } else if ([nodeAtPoint.name isEqualToString:@"fireButton" ]) {
@@ -207,16 +257,7 @@ const int FIRE_COST = 5;
 
 -(void)_swordAttack:(CGPoint)position {
     rpg01SwordNode *sword = [rpg01SwordNode sword];
-    if([_direction isEqualToString:@"down"]){
-        sword.position = CGPointMake(position.x, position.y - TILE_SIZE);
-    } else if([_direction isEqualToString:@"up"]){
-        sword.position = CGPointMake(position.x, position.y + TILE_SIZE);
-    } else if([_direction isEqualToString:@"right"]){
-        sword.position = CGPointMake(position.x + TILE_SIZE, position.y);
-    } else if([_direction isEqualToString:@"left"]){
-        sword.position = CGPointMake(position.x - TILE_SIZE, position.y);
-    }
-    sword.name = @"sword";
+    sword.position = CGPointMake(position.x, position.y + TILE_SIZE);
     [self addChild:sword];
     
     sword.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
@@ -224,8 +265,12 @@ const int FIRE_COST = 5;
     sword.physicsBody.categoryBitMask = swordCategory;
     sword.physicsBody.contactTestBitMask = enemyCategory;
     sword.physicsBody.collisionBitMask = 0;
-    
-    [sword swordMove];
+
+    if(_isMidare){
+        [sword swordMoveMidare];
+    }else {
+        [sword swordMove];
+    }
 }
 
 // 主人公を描画
@@ -245,10 +290,17 @@ const int FIRE_COST = 5;
     CGFloat x = locaiton.x;
     CGFloat y = locaiton.y;
     
+    CGFloat heroSpeed;
+    if(_isSpeed){
+        heroSpeed = 0.5f;
+    } else {
+        heroSpeed = 1.5f;
+    }
+    
     CGFloat diff = abs(hero.position.x - x);
-    CGFloat durationX = HERO_SPEED * diff / self.frame.size.width;
+    CGFloat durationX = heroSpeed * diff / self.frame.size.width;
     diff = abs(hero.position.y - y);
-    CGFloat durationY = HERO_SPEED * diff / self.frame.size.height;
+    CGFloat durationY = heroSpeed * diff / self.frame.size.height;
     CGFloat duration;
     if(durationX >= durationY){
         duration = durationX;
@@ -354,7 +406,13 @@ const int FIRE_COST = 5;
     }
     [self _changeMP: - FIRE_COST];
     
-    rpg01FireNode *fire = [rpg01FireNode fire:from];
+    rpg01FireNode *fire;
+    if(_isBlue){
+        fire = [rpg01FireNode blueFire:from];
+    } else {
+        fire = [rpg01FireNode fire:from];
+    }
+    
     if(_isWakeUp){
         fire.xScale = fire.yScale = 0.5f;
         fire.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(45, 45)];
@@ -385,8 +443,11 @@ const int FIRE_COST = 5;
 
 - (void)_score:(int)score {
     _score += score;
+    if(_score > 999999 ){
+        _score = 999999;
+    }
     SKLabelNode *scoreLabel = (SKLabelNode *)[self childNodeWithName:SCORE_NAME];
-    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %05d", _score];
+    scoreLabel.text = [NSString stringWithFormat:@"GOLD : %d", _score];
 }
 
 - (void)_changeHP:(int)point {
@@ -431,6 +492,10 @@ const int FIRE_COST = 5;
 }
 
 - (void)burnHouse:(SKNode*)enemy house:(SKNode*)house{
+    if(_clearFlag){
+        return;
+    }
+    
     int damage = [enemy.userData[@"str"] intValue];
     _hp -= damage;
     [self _changeHP: -damage];
@@ -491,7 +556,11 @@ const int FIRE_COST = 5;
             damage = 1;
         }
     } else {
-        damage = _int;
+        if(_isBlue){
+            damage = _int*2;
+        } else {
+            damage = _int;
+        }
     }
     if(damage <= 0){
         damage = 1;
@@ -501,7 +570,10 @@ const int FIRE_COST = 5;
     life -= damage;
 
     if(life <= 0){
-        int score = [enemy.userData[@"exp"] intValue];
+        int score = [enemy.userData[@"exp"] intValue] + _luck;
+        if(_luck >= 30){
+            score += 100;
+        }
         [enemy removeFromParent];
         [self _score:score];
     } else {
@@ -528,17 +600,24 @@ const int FIRE_COST = 5;
 
 // FIXME もっと観やすく
 - (void)displayLife:(int)life name:(NSString *)name{
+    if(_displayedLife == YES){
+        return;
+    }
     SKLabelNode *damageLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
     damageLabel.text = [NSString stringWithFormat:@"%@　残りHP：%d", name, life];
-    damageLabel.position = CGPointMake( 120.0f, CGRectGetMinY(self.frame) + 25.0f);
+    damageLabel.position = CGPointMake(5.0f, CGRectGetMaxY(self.frame) - TILE_SIZE * 4);
     damageLabel.fontColor = [SKColor blackColor];
     damageLabel.fontSize = 16.0f;
+    damageLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
     [self addChild:damageLabel];
+    _displayedLife = YES;
     
     SKAction *fadeOut = [SKAction fadeOutWithDuration:1.0f];
     SKAction *remove = [SKAction removeFromParent];
     SKAction *sequence = [SKAction sequence:@[fadeOut, remove]];
-    [damageLabel runAction:sequence];
+    [damageLabel runAction:sequence completion:^{
+        _displayedLife = NO;
+    }];
 }
 
 - (void)update:(NSTimeInterval)currentTime {    
@@ -548,30 +627,25 @@ const int FIRE_COST = 5;
             _timeSinceStart += timeSinceLast;
             _timeSinceLastSecond += timeSinceLast;
             SKLabelNode *timeLabel = (SKLabelNode *)[self childNodeWithName:TIME_NAME];
-            timeLabel.text = [NSString stringWithFormat:@"%07.1f", _stageTime - _timeSinceStart];
-            
+            timeLabel.fontSize = FONT_SIZE + 5;
+            timeLabel.text = [NSString stringWithFormat:@"防衛完了まで残り %03.1f", _stageTime - _timeSinceStart];
+
             if (_timeSinceLastSecond >= 1) {
                 _timeSinceLastSecond = 0;
-                if([_params[@"story"] isEqualToString:@"b1"]){
-                    [self updateStage1];
-                } else if([_params[@"story"] isEqualToString:@"b2"]){
-                    [self updateStage2];
-                } else if([_params[@"story"] isEqualToString:@"b3"]){
-                    [self updateStage3];
-                } else if([_params[@"story"] isEqualToString:@"b4"]){
-                    [self updateStage4];
-                } else if([_params[@"story"] isEqualToString:@"b5"]){
-                    [self updateStage5];
-                } else if([_params[@"story"] isEqualToString:@"b6"]){
-                    [self updateStage6];
-                } else if([_params[@"story"] isEqualToString:@"b7"]){
-                    [self updateStage7];
-                } else if([_params[@"story"] isEqualToString:@"b8"]){
-                    [self updateStage8];
-                } else if([_params[@"story"] isEqualToString:@"final"]){
-                    [self updateSageFinal];
-                } else {
-                    NSLog(@"no story matched. story=%@", _params[@"story"]);
+                [self updateStage];
+                
+                if(_stageTime - _timeSinceStart < 5.0f){
+                    SKLabelNode *count = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+                    count.fontSize = 48.0;
+                    count.text = [NSString stringWithFormat:@"残り%d", (int)(_stageTime - _timeSinceStart )];
+                    count.fontColor = [SKColor blackColor];
+                    count.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) - 50.0f);
+                    [self addChild:count];
+                    
+                    SKAction *fadeOut = [SKAction fadeOutWithDuration:1.0f];
+                    SKAction *remove = [SKAction removeFromParent];
+                    SKAction *sequence = [SKAction sequence:@[fadeOut, remove]];
+                    [count runAction:sequence];
                 }
             }
             if(_stageTime <= _timeSinceStart && _clearFlag == NO){
@@ -591,7 +665,6 @@ const int FIRE_COST = 5;
         } else if([enemy isEqualToString:@"cat"]){
             [self _addEnemyCat];
         } else if([enemy isEqualToString:@"bat"]){
-
             [self _addEnemyBat];
         } else if([enemy isEqualToString:@"skelton"]){
             [self _addEnemySkelton];
@@ -611,129 +684,222 @@ const int FIRE_COST = 5;
     }
 }
 
-// ステージ設定
-- (void)updateStage1{
-    [self addEnemyTiming:@"slime" timing:2];
-    [self addEnemyTiming:@"cat" timing:3];
-    [self addEnemyTiming:@"bat" timing:4];
-}
-
-- (void)updateStage2{
-    [self addEnemyTiming:@"slime" timing:3];
-    [self addEnemyTiming:@"cat" timing:5];
-    [self addEnemyTiming:@"bat" timing:6];
-    [self addEnemyTiming:@"ghost" timing:7];
-    if(_onceFlag == NO){
-        [self _addEnemyGhost];
-        _onceFlag = YES;
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"今回の面はゴーストが登場しますね" message:@"奴は魔法以外の攻撃では１しかダメージを与えられないので注意であります！" delegate:self cancelButtonTitle:nil otherButtonTitles:@"そんなの常識だぜ！", nil];
-        alertView.tag = 1;
-        [alertView show];
-    }
-}
-
-- (void)updateStage3{
-    [self addEnemyTiming:@"bat" timing:5];
-    [self addEnemyTiming:@"cat" timing:7];
-    [self addEnemyTiming:@"dragon" timing:15];
-    if(_onceFlag == NO){
-        [self _addEnemyDragon];
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateStage4{
-    [self addEnemyTiming:@"bat" timing:3];
-    [self addEnemyTiming:@"skelton" timing:15];
-    if(_onceFlag == NO){
-        [self _addEnemySkelton];
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateStage5{
-    [self addEnemyTiming:@"ghost" timing:3];
-    [self addEnemyTiming:@"bigCat" timing:15];
-    if(_onceFlag == NO){
-        [self _addEnemyBigCat];
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateStage6{
-    [self addEnemyTiming:@"bigCat" timing:7];
-    [self addEnemyTiming:@"dragon" timing:5];
-    [self addEnemyTiming:@"golem" timing:9];
-    if(_onceFlag == NO){
-        [self _addEnemyGolem];
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateStage7{
-    [self addEnemyTiming:@"greenSlime" timing:1];
-    if(_onceFlag == NO){
-        for(int i=0; i< 8; i++){
-            [self _addEnemyGreenSlime];
+- (void)updateStage{
+    switch(_story){
+        case 1: {
+            [self addEnemyTiming:@"slime" timing:2];
+            [self addEnemyTiming:@"cat" timing:3];
+            [self addEnemyTiming:@"bat" timing:4];
+            break;
         }
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateStage8{
-    if(_onceFlag == NO){
-        [self _addEnemyDark];
-        _onceFlag = YES;
-    }
-}
-
-- (void)updateSageFinal{
-    [self addEnemyTiming:@"greenSlime" timing:3];
-//    [self addEnemyTiming:@"bat" timing:4];
-//    [self addEnemyTiming:@"cat" timing:5];
-    [self addEnemyTiming:@"ghost" timing:6];
-    [self addEnemyTiming:@"skelton" timing:9];
-    [self addEnemyTiming:@"golem" timing:11];
-    [self addEnemyTiming:@"dragon" timing:16];
-    [self addEnemyTiming:@"bigCat" timing:20];
-    [self addEnemyTiming:@"dark" timing:50];
-}
-
-
-- (void)displayDoor{
-    if(_doorFlag == NO){
-        rpg01DoorNode* door = [rpg01DoorNode door];
-        door.position = CGPointMake(TILE_SIZE*2.5, self.frame.size.height - TILE_SIZE*3);
-        [self addChild:door];
-        _doorFlag = YES;
+        case 2 : {
+            [self addEnemyTiming:@"slime" timing:3];
+            [self addEnemyTiming:@"cat" timing:5];
+            [self addEnemyTiming:@"bat" timing:6];
+            [self addEnemyTiming:@"ghost" timing:7];
+            if(_onceFlag == NO){
+                [self _addEnemyGhost];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 3 : {  // 骸とダンス
+            [self addEnemyTiming:@"bat" timing:3];
+            [self addEnemyTiming:@"skelton" timing:15];
+            if(_onceFlag == NO){
+                [self _addEnemySkelton];
+                _onceFlag = YES;
+            }
+            
+            break;
+        }
+        case 4 : {  // ドラゴン
+            [self addEnemyTiming:@"bat" timing:5];
+            [self addEnemyTiming:@"cat" timing:7];
+            [self addEnemyTiming:@"dragon" timing:15];
+            if(_onceFlag == NO){
+                [self _addEnemyDragon];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 5 : {  // 大きなネコ
+            [self addEnemyTiming:@"cat" timing:2];
+            [self addEnemyTiming:@"ghost" timing:3];
+            [self addEnemyTiming:@"bigCat" timing:15];
+            if(_onceFlag == NO){
+                [self _addEnemyBigCat];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 6: {  // ここから本番
+            [self addEnemyTiming:@"cat" timing:3];
+            [self addEnemyTiming:@"bat" timing:5];
+            [self addEnemyTiming:@"skelton" timing:10];
+            break;
+        }
+        case 7: {  // ドラゴン面
+            [self addEnemyTiming:@"cat" timing:2];
+            [self addEnemyTiming:@"ghost" timing:5];
+            [self addEnemyTiming:@"dragon" timing:7];
+            [self addEnemyTiming:@"bigCat" timing:30];
+            if(_onceFlag == NO){
+                [self _addEnemyDragon];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 8: {  // ネコタウン
+            [self addEnemyTiming:@"cat" timing:1];
+            [self addEnemyTiming:@"cat" timing:2];
+            [self addEnemyTiming:@"cat" timing:3];
+            for (int i=0; i<8; i++) {
+                [self addEnemyTiming:@"cat" timing:34];
+            }
+            if(_onceFlag == NO){
+                for (int i=0; i<8; i++) {
+                    [self _addEnemyCat];
+                }
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 9: {  // ゴーレム
+            [self addEnemyTiming:@"golem" timing:9];
+            [self addEnemyTiming:@"dragon" timing:5];
+            [self addEnemyTiming:@"slime" timing:2];
+            if(_onceFlag == NO){
+                [self _addEnemyGolem];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 10 : {  // スライムパニック
+            [self addEnemyTiming:@"greenSlime" timing:1];
+            [self addEnemyTiming:@"greenSlime" timing:3];
+            for(int i=0; i< 8; i++){
+                [self addEnemyTiming:@"greenSlime" timing:35];
+            }
+            if(_onceFlag == NO){
+                for(int i=0; i< 8; i++){
+                    [self _addEnemyGreenSlime];
+                }
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 11 : {   // 宿命の対決
+            if(_onceFlag == NO){
+                [self _addEnemyDark];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 12 : {   // last skelton
+            [self addEnemyTiming:@"skelton" timing:4];
+            if(_onceFlag == NO){
+                [self _addEnemySkelton];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 13 : {   // 宿命の対決
+            [self addEnemyTiming:@"dark" timing:10];
+            if(_onceFlag == NO){
+                [self _addEnemyDark];
+                _onceFlag = YES;
+            }
+            break;
+        }
+        case 99 : {
+            [self addEnemyTiming:@"greenSlime" timing:3];
+            [self addEnemyTiming:@"ghost" timing:6];
+            [self addEnemyTiming:@"skelton" timing:9];
+            [self addEnemyTiming:@"golem" timing:11];
+            [self addEnemyTiming:@"dragon" timing:16];
+            [self addEnemyTiming:@"bigCat" timing:20];
+            [self addEnemyTiming:@"dark" timing:50];
+            [self addEnemyTiming:@"dark" timing:81];
+            break;
+        }
     }
 }
 
 - (void)clearStage{
-    [self stopBGM];
     _params[@"done"] = @"field";
-    if([_params[@"story"] isEqualToString:@"b1"]){
-        _params[@"story"] = @"b2";
-    } else if([_params[@"story"] isEqualToString:@"b2"]){
-        _params[@"story"] = @"b3";
-    } else if([_params[@"story"] isEqualToString:@"b3"]){
-        _params[@"story"] = @"b4";
-    } else if([_params[@"story"] isEqualToString:@"b4"]){
-        _params[@"story"] = @"b5";
-    } else if([_params[@"story"] isEqualToString:@"b5"]){
-        _params[@"story"] = @"b6";
-    } else if([_params[@"story"] isEqualToString:@"b6"]){
-        _params[@"story"] = @"b7";
-    } else if([_params[@"story"] isEqualToString:@"b7"]){
-        _params[@"story"] = @"b8";
-    } else if([_params[@"story"] isEqualToString:@"final"]){
-        // ending
-    } else {
-        NSLog(@"no story matched. story=%@", _params[@"story"]);
+    [self stopBGM];
+    if(_story != 99){
+        [self playBGM:@"clear" type:@"mp3"];
     }
+    
+    if(_story == 99){
+
+    } else if (_story == 13){
+        _params[@"story"] = @"13";
+    } else {
+        _params[@"story"] = [NSString stringWithFormat:@"%d", _story + 1];
+    }
+    
+    SKLabelNode *titleLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    titleLabel.fontSize = 32.0;
+    titleLabel.text = @"防衛成功！！";
+    titleLabel.fontColor = [SKColor blackColor];
+    titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) + 100.0f);
+    [self addChild:titleLabel];
+
+    SKLabelNode *text1 = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    text1.text = [NSString stringWithFormat:@"クリアボーナス:%d", _story * 50];
+    text1.fontColor = [SKColor blackColor];
+    text1.position = CGPointMake(10.0f, CGRectGetMidY(self.frame) + 40.0f);
+    text1.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
+    [self addChild:text1];
+
+    if(_hp >= _MAXHP - 10 && _story > 3){
+        SKLabelNode *text2 = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+        text2.text = [NSString stringWithFormat:@"残りHPボーナス:%d", _hp];
+        text2.fontColor = [SKColor blackColor];
+        text2.position = CGPointMake(10.0f, CGRectGetMidY(self.frame));
+        text2.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
+        [self addChild:text2];
+        [self _score:_hp];
+    }
+
+    SKLabelNode *text3 = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
+    if(_hp < 10){
+        text3.text = @"ギリギリ勝利！";
+    } else if (_hp < 60){
+        text3.text = @"なんとか勝利！";
+    } else if (_hp < 120){
+        text3.text = @"勝利にカンパイ！";
+    } else if (_hp < 180){
+        text3.text = @"平和ばんざい！";
+    } else if (_hp < 240){
+        text3.text = @"まだまだ戦いは続く";
+    } else if (_hp < 300){
+        text3.text = @"余裕のよっちゃん！";
+    } else {
+        text3.text = @"美しすぎる勝利";
+    }
+    text3.fontColor = [SKColor blackColor];
+    text3.position = CGPointMake(10.0f, CGRectGetMidY(self.frame) - 40.0f);
+    text3.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeLeft;
+    [self addChild:text3];
+    
+    [self _score:_story * 50];
     _params[@"gold"] = [NSString stringWithFormat:@"%d", _score];
     
-    [self loadSceneToDone:_params];
+    [self performSelector:@selector(backToField) withObject:nil afterDelay:10.0f];
 }
+
+- (void)backToField{
+    if(_story == 99){
+        [self loadScene:@"ending"];        
+    } else {
+        [self stopBGM];
+        [self loadSceneToDone:_params];
+    }
+}
+
 
 @end

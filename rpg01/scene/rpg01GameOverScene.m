@@ -5,7 +5,7 @@
 - (void)createSceneContents {
     SKLabelNode *titleLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
     titleLabel.text = @"GAME OVER";
-    titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
+    titleLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame) + 50.0f);
     [self addChild:titleLabel];
 
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
@@ -23,10 +23,14 @@
 
 - (NSString *)randomText {
     NSString *message;
+    
+    SKSpriteNode *node = [SKSpriteNode spriteNodeWithImageNamed:@"dead"];
+    node.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
+    [self addChild:node];
 
-    CGFloat rand = arc4random() % 8;
+    CGFloat rand = arc4random() % 9;
     if(rand == 0 ){
-        message = @"残念、君の冒険はここで終わってしまった！";
+        message = @"残念、君の人生はここで終わってしまった！";
     } else if (rand == 1){
         message = @"「そんな、バカな……」　その言葉が君の最後の言葉となった。";
     } else if (rand == 2){
@@ -41,6 +45,8 @@
         message = @"「もはやここまでか……」　君は冒険に出た時から死の覚悟はできていた。悲鳴もあげず、潔く君は死んだ。";
     } else if (rand == 7){
         message = @"「我が生涯に悔いは無し！」　君は誰よりも格好良く死んだ。";
+    } else if (rand == 8){
+        message = @"生命保険に入っておくべきだった……後悔しても時すでに遅し";
     } else {
         message = @"死んじゃったよーん";
     }

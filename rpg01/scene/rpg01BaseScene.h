@@ -17,7 +17,6 @@
 - (void)loadSceneWithParam:(NSString *)name params:(NSMutableDictionary *)params;
 - (void)loadSceneToDone:(NSMutableDictionary *)params;
 - (void)addStatusFrame;
-- (void)setPeople;
 - (void)addController:(CGFloat)_base_height;
 - (void)makeButton:(CGPoint)point name:(NSString *)name text:(NSString*)text;
 - (void)makeButtonWithSize:(CGPoint)point name:(NSString *)name text:(NSString*)text size:(CGSize)size;

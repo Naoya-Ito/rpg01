@@ -37,7 +37,28 @@ const int QUESTION_IMPORTANT = 2;
     
     SKMessageNode *message = [[SKMessageNode alloc] initWithSize:CGSizeMake(self.size.width, self.size.height * 0.3f)];
     [self addChild:message];
+
+    NSArray *textures = [self _textures:@"hiroin" withRow:3 cols:1];
+    SKSpriteNode *heroin = [SKSpriteNode spriteNodeWithTexture:textures.firstObject];
+    heroin.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
+    [self addChild:heroin];
 }
+
+- (NSArray *)_textures:(NSString *)name withRow:(int)row cols:(int)cols {
+    SKTexture *texture = [SKTexture textureWithImageNamed:name];
+    
+    NSMutableArray *textures = @[].mutableCopy;
+    for (int col = 0; col < cols; col++) {
+        CGFloat x = col * 32 / texture.size.width;
+        CGFloat y = row * 32/ texture.size.height;
+        CGFloat w = 32 / texture.size.width;
+        CGFloat h = 32 / texture.size.height;
+        SKTexture *t = [SKTexture textureWithRect:CGRectMake(x, y, w, h) inTexture:texture];
+        [textures addObject:t];
+    }
+    return textures;
+}
+
 
 - (SKMessageNode *)messageNode {
     return (SKMessageNode *)[self childNodeWithName:kMessageName];
@@ -68,7 +89,7 @@ const int QUESTION_IMPORTANT = 2;
         _story = 101;
     } else if (_story == 101) {  // そして冒険へ
         _story = 102;
-        _params[@"story"] = @"b1";
+        _params[@"story"] = @"1";
         [self loadSceneWithParam:@"field" params:_params];;
     } else if (_story == 499){
         _story = 500;
@@ -111,6 +132,13 @@ const int QUESTION_IMPORTANT = 2;
                 @"done" : @"input",
                 @"story" : @"question_end"
                 } mutableCopy];
+    if([_name isEqualToString:@"オレツエ"]){
+        params[@"speed"] = @"OK";
+        params[@"cons"] = @"OK";
+        params[@"wakeUp"] = @"OK";
+        params[@"midare"] = @"OK";
+        params[@"blue"] = @"OK";
+    }
     [self loadSceneWithParam:@"status" params:params];
 }
 
@@ -131,6 +159,9 @@ const int QUESTION_IMPORTANT = 2;
                 _str += 1;
                 _MP += 1;
                 _story = 5;
+                if([_name isEqualToString:@"社長"]){
+                    _gold = 50000;
+                }
                 break;
         }
     } else if(alertView.tag == QUESTION_JOB){
@@ -241,7 +272,7 @@ const int QUESTION_IMPORTANT = 2;
     } else if (_story == 1){
         [self messageNode].message = @"初めに大佐の事を知る為にいくつか質問させてもらうであります！";
     } else if (_story == 3) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問１" message:@"大佐の名前を教えて欲しいであります！（４文字以内）" delegate:self cancelButtonTitle:@"名乗る名前などない" otherButtonTitles:@"OK", nil];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"質問１" message:@"お名前を教えて欲しいであります！（４文字以内）" delegate:self cancelButtonTitle:@"名乗る名前などない" otherButtonTitles:@"OK", nil];
         alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
         alertView.tag = QUESTION_NAME;
         [alertView show];
@@ -251,7 +282,7 @@ const int QUESTION_IMPORTANT = 2;
             [self messageNode].message = @"まさかあなたが伝説の剣士オレツエさんでありますか！？　サインをください！！";
             _nickname = @"究極";
             _job = @"勇者";
-            _HP = 150;
+            _HP = 350;
             _MP = 50;
             _gold = 200000;
             _str = 99;

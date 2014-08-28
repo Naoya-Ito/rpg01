@@ -8,12 +8,12 @@
     //rpg01DragonNode *node = [rpg01DragonNode spriteNodeWithImageNamed:@"mon_013.bmp"];
     
     node.userData =  @{ @"name" : @"ドラゴン",
-                        @"life" : @(100),
+                        @"life" : @(80),
                         @"exp" : @(50),
                         @"speed_dx" : @(0),
                         @"speed_dy" : @(-45.0f),
                         @"attacked" : @(0),
-                        @"str" : @(30),
+                        @"str" : @(20),
                         @"kieru" : @"OK"                        
                         }.mutableCopy;
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE*2, TILE_SIZE*2)];
