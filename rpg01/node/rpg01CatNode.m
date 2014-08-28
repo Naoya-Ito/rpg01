@@ -28,4 +28,33 @@
     
     return node;
 }
+
++ (id)goldCat{
+    rpg01CatNode *node = [rpg01CatNode spriteNodeWithImageNamed:@"goldCat"];
+    node.name = ENEMY_CAT_NAME;
+    node.userData =  @{ @"name" : @"金のネコ",
+                        @"life" : @(1),
+                        @"exp" : @(777),
+                        @"speed_dx" : @(0),
+                        @"speed_dy" : @(-350.0f),
+                        @"attacked" : @(0),
+                        @"str" : @(4),
+                        @"kieru" : @"OK"
+                        }.mutableCopy;
+    node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(TILE_SIZE, TILE_SIZE)];
+    node.physicsBody.affectedByGravity = NO;
+    node.physicsBody.allowsRotation = NO;
+    node.physicsBody.categoryBitMask = enemyCategory;
+    node.physicsBody.contactTestBitMask = heroCategory | swordCategory | houseCategory;
+    node.physicsBody.collisionBitMask = worldCategory;
+    
+    // 敵のスピード
+    int dx = [node.userData[@"speed_dx"] intValue];
+    int dy = [node.userData[@"speed_dy"] intValue];
+    node.physicsBody.velocity = CGVectorMake( dx, dy);
+    
+    return node;
+}
+
+
 @end

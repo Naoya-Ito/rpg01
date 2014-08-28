@@ -84,12 +84,22 @@ static const CGFloat DELAY = 5.0f;
     } else if([_params[@"story"] isEqualToString:@"12"]){
         titleLabel.text = @"ステージ12　ラスト骸骨";
         subTitleLabel.text = @"クリア条件：60秒町を守る";
-        [self messageNode].message = @"プロの領域";
+        [self messageNode].message = @"確実に倒していこう";
         [self performSelector:@selector(nextScene) withObject:nil afterDelay:DELAY];
     } else if([_params[@"story"] isEqualToString:@"13"]){
         titleLabel.text = @"ステージ13　最終訓練";
         subTitleLabel.text = @"クリア条件：60秒町を守る";
-        [self messageNode].message = @"プロの領域　その２";
+        [self messageNode].message = @"これをクリアできればプロ";
+        [self performSelector:@selector(nextScene) withObject:nil afterDelay:DELAY];
+    } else if([_params[@"story"] isEqualToString:@"14"]){
+        titleLabel.text = @"ステージ14　追加ステージ";
+        subTitleLabel.text = @"クリア条件：60秒町を守る";
+        [self messageNode].message = @"物理攻撃が効かない集団。ここを魔法無しでクリアできたら凄い。";
+        [self performSelector:@selector(nextScene) withObject:nil afterDelay:DELAY];
+    } else if([_params[@"story"] isEqualToString:@"15"]){
+        titleLabel.text = @"ステージ15　夏のボーナス";
+        subTitleLabel.text = @"クリア条件：10秒町を守る";
+        [self messageNode].message = @"ここまで頑張ってくれたご褒美";
         [self performSelector:@selector(nextScene) withObject:nil afterDelay:DELAY];
     } else if([_params[@"story"] isEqualToString:@"99"]){
         titleLabel.text = @"最終ステージ　愛に全てを";

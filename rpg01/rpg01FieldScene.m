@@ -12,6 +12,7 @@ const int GO_TAG2 = 5;
 const int INFO_TAG = 6;
 const int INFO_TAG2 = 7;
 const int TIME_TAG = 8;
+const int HEROIN_TAG = 9;
 
 @interface rpg01FieldScene () <SKPhysicsContactDelegate>
 @end
@@ -53,6 +54,12 @@ const int TIME_TAG = 8;
     
     point = CGPointMake(50.0f, 90.0f);
     [self makeButton:point name:@"save" text:@"セーブ"];
+    
+    NSArray *textures = [self _textures:@"hiroin" withRow:3 cols:1];
+    SKSpriteNode *heroin = [SKSpriteNode spriteNodeWithTexture:textures.firstObject];
+    heroin.name = @"heroin";
+    heroin.position = CGPointMake(250.0f, 90.0f);
+    [self addChild:heroin];
     
     [self addStatusFrame];
     [self stopBGM];
@@ -110,7 +117,7 @@ const int TIME_TAG = 8;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"大勝利！" message:@"ふっふっふ、財産が２倍になったであります！" delegate:self cancelButtonTitle:@"今夜は焼き肉だー！" otherButtonTitles:nil, nil];
         alertView.tag = GAMBLE_TAG2;
         _params[@"gold"] = [NSString stringWithFormat:@"%d", [_params[@"gold"] intValue]*2];
-        _params[@"nickname"] = @"勝負師";
+        _params[@"nickname"] = @"ロマン";
         [alertView show];
     } else {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"とほほ。負けちゃいました" message:@"悲しいであります　(´；ω；｀)" delegate:self cancelButtonTitle:@"帰ろうか……" otherButtonTitles:nil, nil];
@@ -150,7 +157,10 @@ const int TIME_TAG = 8;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"もうあの頃には戻れないのでしょうか？" message:@"" delegate:self cancelButtonTitle:@"そうだね……" otherButtonTitles:@"戻れるよ", nil];
         alertView.tag = TIME_TAG;
         [alertView show];
-        
+    } else if ([nodeAtPoint.name isEqualToString:@"heroin"]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"私をタップしても何も起きないであります！" message:@"" delegate:self cancelButtonTitle:nil otherButtonTitles:@"そうか", nil];
+        alertView.tag = HEROIN_TAG;
+        [alertView show];
     } else if ([nodeAtPoint.name isEqualToString:@"save"]) {
         [self saveData];
     }
@@ -208,7 +218,7 @@ const int TIME_TAG = 8;
                 [self outputGold];
                 _params[@"gold"] = [NSString stringWithFormat:@"%d",[_params[@"gold"] intValue] -10];
                 [self outputGold];
-                int i = arc4random()%22;
+                int i = arc4random()%23;
                 NSString *title;
                 NSString *text;
                 if(i == 0){
@@ -277,6 +287,9 @@ const int TIME_TAG = 8;
                 } else if(i == 21){
                     title = @"情報No22";
                     text = @"LVアップに必要なゴールドは最大で1000";
+                } else if(i == 22){
+                    title = @"情報No23";
+                    text = @"金のネコはステージ４の残り2秒で出て来る";
                 }
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:text delegate:self cancelButtonTitle:nil otherButtonTitles:@"へー、そうなんだ", nil];
                 alertView.tag = INFO_TAG2;
@@ -292,7 +305,7 @@ const int TIME_TAG = 8;
             }
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"時を戻しました！" message:@"" delegate:self cancelButtonTitle:nil otherButtonTitles:@"にやり", nil];
             alertView.tag = INFO_TAG2;
-            _params[@"_nickname"] = @"ヘタレ";
+            _params[@"nickname"] = @"ヘタレ";
             [alertView show];
         }
     }

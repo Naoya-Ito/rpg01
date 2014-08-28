@@ -7,7 +7,7 @@
     node.name = @"bigCat";
     node.userData =  @{ @"name" : @"巨大ネコ",
                         @"life" : @(150),
-                        @"exp" : @(40),
+                        @"exp" : @(44),
                         @"speed_dx" : @(0),
                         @"speed_dy" : @(-35.0f),
                         @"attacked" : @(10),

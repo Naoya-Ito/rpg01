@@ -1,10 +1,12 @@
 #import "rpg01ShopScene.h"
 
-const int COST_CONS = 300;
-const int COST_WAKEUP = 300;
+const int COST_CONS = 250;
+const int COST_WAKEUP = 250;
 const int COST_BLUE = 600;
 const int COST_MIDARE = 200;
 const int COST_SPEED = 150;
+const int COST_BRAVE = 300;
+const int COST_STUDY = 300;
 
 const int KAERE_TAG = 0;
 const int BUY_TAG = 1;
@@ -18,7 +20,7 @@ const int BUY_TAG = 1;
 - (void)createSceneContents{
     [self addStatusFrame];
     
-    CGPoint point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 310.0f);
+    CGPoint point = CGPointMake(50.0f, 480.0f);
     CGSize size = CGSizeMake(80, 28);
     if(![_params[@"cons"] isEqualToString:@"OK"]){
         [self makeButtonWithSize:point name:@"cons" text:@"集中" size:size];
@@ -26,36 +28,51 @@ const int BUY_TAG = 1;
         [self outputDescription:point text:@"炎の飛距離と速度アップ" name:@"cons"];
     }
     if(![_params[@"wakeUp"] isEqualToString:@"OK"]){
-        point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 270.0f);
+        point = CGPointMake(50.0f, 440.0f);
         [self makeButtonWithSize:point name:@"wakeUp" text:@"覚醒" size:size];
         [self outputCost:point text:[NSString stringWithFormat:@"%d",COST_WAKEUP] name:@"wakeUp"];
         [self outputDescription:point text:@"炎の大きさアップ" name:@"wakeUp"];
     }
+    if(![_params[@"study"] isEqualToString:@"OK"]){
+        point = CGPointMake(50.0f, 400.0f);
+        [self makeButtonWithSize:point name:@"study" text:@"英知" size:size];
+        [self outputCost:point text:[NSString stringWithFormat:@"%d", COST_STUDY] name:@"study"];
+        [self outputDescription:point text:@"消費MP軽減（5→4）" name:@"study"];
+    }
+    
     if(![_params[@"blue"] isEqualToString:@"OK"]){
-        point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 230.0f);
+        point = CGPointMake(50.0f, 360.0f);
         [self makeButtonWithSize:point name:@"blue" text:@"蒼炎" size:size];
         [self outputCost:point text:[NSString stringWithFormat:@"%d", COST_BLUE] name:@"blue"];
         [self outputDescription:point text:@"魔法ダメージ２倍" name:@"blue"];
     }
     
     if(![_params[@"midare"] isEqualToString:@"OK"]){
-        point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 190.0f);
+        point = CGPointMake(50.0f, 320.0f);
         [self makeButtonWithSize:point name:@"midare" text:@"乱れ斬り" size:size];
         [self outputCost:point text:[NSString stringWithFormat:@"%d", COST_MIDARE] name:@"midare"];
         [self outputDescription:point text:@"斬る回数が増える" name:@"midare"];
     }
+    if(![_params[@"brave"] isEqualToString:@"OK"]){
+        point = CGPointMake(50.0f, 280.0f);
+        [self makeButtonWithSize:point name:@"brave" text:@"勇気" size:size];
+        [self outputCost:point text:[NSString stringWithFormat:@"%d", COST_BRAVE] name:@"brave"];
+        [self outputDescription:point text:@"剣攻撃時のMP回復量増加" name:@"brave"];
+    }
     
     if(![_params[@"speed"] isEqualToString:@"OK"]){
-        point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 150.0f);
+        point = CGPointMake(50.0f, 240.0f);
         [self makeButtonWithSize:point name:@"speed" text:@"縮地" size:size];
         [self outputCost:point text:[NSString stringWithFormat:@"%d", COST_SPEED] name:@"speed"];
         [self outputDescription:point text:@"目にも止まらぬ早さになる" name:@"speed"];
     } else {
-        point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 150.0f);
+        point = CGPointMake(50.0f, 240.0f);
         [self makeButtonWithSize:point name:@"speedCancel" text:@"縮地解除" size:size];
         [self outputDescription:point text:@"普通の早さに戻す" name:@"speed"];
     }
-    point = CGPointMake(50.0f, self.frame.size.height * 0.3 + 30.0f);
+    
+    
+    point = CGPointMake(50.0f, 50.0f);
     [self makeButton:point name:@"back" text:@"戻る"];
 }
 
@@ -108,7 +125,7 @@ const int BUY_TAG = 1;
     } else if ([nodeAtPoint.name isEqualToString:@"speed"]) {
         if(![_params[@"speed"] isEqualToString:@"OK"]){
             _currentName = @"speed";
-            _currentDisplayName = @"乱れ斬り";
+            _currentDisplayName = @"縮地";
             _currentCost = COST_SPEED;
             [self buy];
         }
@@ -117,6 +134,20 @@ const int BUY_TAG = 1;
             _currentName = @"midare";
             _currentDisplayName = @"乱れ斬り";
             _currentCost = COST_MIDARE;
+            [self buy];
+        }
+    } else if ([nodeAtPoint.name isEqualToString:@"study"]) {
+        if(![_params[@"study"] isEqualToString:@"OK"]){
+            _currentName = @"study";
+            _currentDisplayName = @"英知";
+            _currentCost = COST_STUDY;
+            [self buy];
+        }
+    } else if ([nodeAtPoint.name isEqualToString:@"brave"]) {
+        if(![_params[@"brave"] isEqualToString:@"OK"]){
+            _currentName = @"brave";
+            _currentDisplayName = @"勇気";
+            _currentCost = COST_BRAVE;
             [self buy];
         }
     } else if ([nodeAtPoint.name isEqualToString:@"speedCancel"]) {

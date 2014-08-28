@@ -20,7 +20,6 @@ static inline CGFloat skRand(CGFloat low, CGFloat high) {
     return skRandf() * (high - low) + low;
 }
 
-const int FIRE_COST = 5;
 
 @interface rpg01PlayScene () <SKPhysicsContactDelegate>
 @end
@@ -47,11 +46,13 @@ const int FIRE_COST = 5;
     BOOL _displayedLife;
     int _story;
     int _fireDistance;
+    BOOL _canMagic;
     BOOL _isWakeUp;
     BOOL _isMidare;
     BOOL _isSpeed;
     BOOL _isBlue;
-    BOOL _canMagic;
+    BOOL _isBrave;
+    int _fireCost;
 }
 
 -(void)createSceneContents{
@@ -124,6 +125,16 @@ const int FIRE_COST = 5;
         _isBlue = YES;
     } else {
         _isBlue = NO;
+    }
+    if([_params[@"study"] isEqualToString:@"OK"]){
+        _fireCost = 4;
+    } else {
+        _fireCost = 5;
+    }
+    if([_params[@"brave"] isEqualToString:@"OK"]){
+        _isBrave = YES;
+    } else {
+        _isBrave = NO;
     }
 }
 
@@ -224,7 +235,18 @@ const int FIRE_COST = 5;
             [self addChild:map];
             break;
         }
-            
+        case 14:{
+            _stageTime = 60.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
+        case 15:{
+            _stageTime = 10.0f;
+            rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"b5" base_height:_base_height];
+            [self addChild:map];
+            break;
+        }
         case 99:{
             _stageTime = 87.0f;
             rpg01MapNode *map = [[rpg01MapNode alloc] initWithMapNamed:@"final" base_height:_base_height];
@@ -233,7 +255,6 @@ const int FIRE_COST = 5;
         }
     }
 }
-
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
@@ -352,6 +373,12 @@ const int FIRE_COST = 5;
     [self addChild:enemy];
 }
 
+- (void)_addEnemyGoldCat{
+    rpg01CatNode *enemy = [rpg01CatNode goldCat];
+    enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
+    [self addChild:enemy];
+}
+
 - (void)_addEnemyDragon{
     rpg01DragonNode *enemy = [rpg01DragonNode dragon];
     enemy.position = CGPointMake(skRand(TILE_SIZE * 1.5, 6.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE*2);
@@ -382,6 +409,12 @@ const int FIRE_COST = 5;
     [self addChild:enemy];
 }
 
+- (void)_addEnemyBlueGhost{
+    rpg01GhostNode *enemy = [rpg01GhostNode blueGhost];
+    enemy.position = CGPointMake(skRand(60, self.frame.size.width - 60), CGRectGetMaxY(self.frame) - TILE_SIZE*2);
+    [self addChild:enemy];
+}
+
 - (void)_addEnemyBat{
     rpg01BatNode *enemy = [rpg01BatNode bat];
     enemy.position = CGPointMake(skRand(TILE_SIZE * 0.5, 7.5*TILE_SIZE), CGRectGetMaxY(self.frame) - TILE_SIZE);
@@ -397,7 +430,7 @@ const int FIRE_COST = 5;
 }
 
 - (void)_addFire:(CGPoint)from{
-    if(_mp < FIRE_COST){
+    if(_mp < _fireCost){
         return;
     }
     // 炎は三つまで　処理重いんだよね
@@ -406,8 +439,8 @@ const int FIRE_COST = 5;
         _fires = 3;
         return;
     }
-    [self _changeMP: - FIRE_COST];
-    if(_mp < FIRE_COST && _canMagic){
+    [self _changeMP: - _fireCost];
+    if(_mp < _fireCost && _canMagic){
         SKSpriteNode *fireButton = (SKSpriteNode *)[self childNodeWithName:@"fireButton"];
         fireButton.texture = [SKTexture textureWithImageNamed:@"fireButtonOff"];
         _canMagic = NO;
@@ -537,15 +570,7 @@ const int FIRE_COST = 5;
 }
 
 - (void)_attack:(SKNode *)weapon enemy:(SKNode *)enemy {
-    // MPを1回復
-    [self _changeMP:1];
-    if(_mp >= FIRE_COST && !_canMagic){
-        SKSpriteNode *fireButton = (SKSpriteNode *)[self childNodeWithName:@"fireButton"];
-        fireButton.texture = [SKTexture textureWithImageNamed:@"fireButton"];
-        _canMagic = YES;
-    }
 
-    
     // 火花を散らす
     NSString *sparkPath = [[NSBundle mainBundle] pathForResource:@"spark" ofType:@"sks"];
     SKEmitterNode *spark = [NSKeyedUnarchiver unarchiveObjectWithFile:sparkPath];
@@ -568,6 +593,18 @@ const int FIRE_COST = 5;
         if((enemy.physicsBody.categoryBitMask & metalBodyCategory) != 0){
             damage = 1;
         }
+        // MP回復
+        if(_isBrave){
+            [self _changeMP:2];
+        } else {
+            [self _changeMP:1];
+        }
+        if(_mp >= _fireCost && !_canMagic){
+            SKSpriteNode *fireButton = (SKSpriteNode *)[self childNodeWithName:@"fireButton"];
+            fireButton.texture = [SKTexture textureWithImageNamed:@"fireButton"];
+            _canMagic = YES;
+        }
+        [enemy.physicsBody applyImpulse:CGVectorMake( 0,[enemy.userData[@"attacked"] intValue])];
     } else {
         if(_isBlue){
             damage = _int*2;
@@ -592,8 +629,6 @@ const int FIRE_COST = 5;
     } else {
         enemy.userData[@"life"] = @(life);
         [self displayLife:life name:enemy.userData[@"name"]];
-
-        [enemy.physicsBody applyImpulse:CGVectorMake( 0,[enemy.userData[@"attacked"] intValue])];
     }
 }
 
@@ -677,6 +712,8 @@ const int FIRE_COST = 5;
             [self _addEnemySlime];
         } else if([enemy isEqualToString:@"cat"]){
             [self _addEnemyCat];
+        } else if([enemy isEqualToString:@"goldCat"]){
+            [self _addEnemyGoldCat];
         } else if([enemy isEqualToString:@"bat"]){
             [self _addEnemyBat];
         } else if([enemy isEqualToString:@"skelton"]){
@@ -689,6 +726,8 @@ const int FIRE_COST = 5;
             [self _addEnemyGolem];
         } else if([enemy isEqualToString:@"ghost"]){
             [self _addEnemyGhost];
+        } else if([enemy isEqualToString:@"blueGhost"]){
+            [self _addEnemyBlueGhost];
         } else if([enemy isEqualToString:@"greenSlime"]){
             [self _addEnemyGreenSlime];
         } else if([enemy isEqualToString:@"dark"]){
@@ -730,6 +769,7 @@ const int FIRE_COST = 5;
             [self addEnemyTiming:@"bat" timing:5];
             [self addEnemyTiming:@"cat" timing:7];
             [self addEnemyTiming:@"dragon" timing:15];
+            [self addEnemyTiming:@"goldCat" timing:28];
             if(_onceFlag == NO){
                 [self _addEnemyDragon];
                 _onceFlag = YES;
@@ -767,6 +807,7 @@ const int FIRE_COST = 5;
             [self addEnemyTiming:@"cat" timing:1];
             [self addEnemyTiming:@"cat" timing:2];
             [self addEnemyTiming:@"cat" timing:3];
+            [self addEnemyTiming:@"goldCat" timing:35];
             for (int i=0; i<8; i++) {
                 [self addEnemyTiming:@"cat" timing:34];
             }
@@ -803,6 +844,8 @@ const int FIRE_COST = 5;
             break;
         }
         case 11 : {   // 宿命の対決
+            [self addEnemyTiming:@"goldCat" timing:35];
+            [self addEnemyTiming:@"goldCat" timing:45];
             if(_onceFlag == NO){
                 [self _addEnemyDark];
                 _onceFlag = YES;
@@ -817,7 +860,7 @@ const int FIRE_COST = 5;
             }
             break;
         }
-        case 13 : {   // 宿命の対決
+        case 13 : {   // 宿命の対決2
             [self addEnemyTiming:@"dark" timing:10];
             if(_onceFlag == NO){
                 [self _addEnemyDark];
@@ -825,13 +868,30 @@ const int FIRE_COST = 5;
             }
             break;
         }
+        case 14 : {   // 魔法しか効かない面
+            [self addEnemyTiming:@"ghost" timing:2];
+            [self addEnemyTiming:@"blueGhost" timing:5];
+            [self addEnemyTiming:@"golem" timing:3];
+            [self addEnemyTiming:@"dark" timing:20];
+            break;
+        }
+        case 15 : {   // ボーナスステージ
+            [self addEnemyTiming:@"goldCat" timing:1];
+            [self addEnemyTiming:@"goldCat" timing:3];
+            if(_onceFlag == NO){
+                [self _addEnemyGoldCat];
+                _onceFlag = YES;
+            }
+            break;
+        }
         case 99 : {
             [self addEnemyTiming:@"greenSlime" timing:3];
-            [self addEnemyTiming:@"ghost" timing:6];
+            [self addEnemyTiming:@"blueGhost" timing:6];
             [self addEnemyTiming:@"skelton" timing:9];
             [self addEnemyTiming:@"golem" timing:11];
             [self addEnemyTiming:@"dragon" timing:16];
             [self addEnemyTiming:@"bigCat" timing:20];
+            [self addEnemyTiming:@"goldCat" timing:24];
             [self addEnemyTiming:@"dark" timing:50];
             [self addEnemyTiming:@"dark" timing:81];
             break;
@@ -848,8 +908,8 @@ const int FIRE_COST = 5;
     
     if(_story == 99){
 
-    } else if (_story == 13){
-        _params[@"story"] = @"13";
+    } else if (_story == 15){
+        _params[@"story"] = @"15";
     } else {
         _params[@"story"] = [NSString stringWithFormat:@"%d", _story + 1];
     }

@@ -7,7 +7,7 @@
     node.name = @"golem";
     node.userData =  @{ @"name" : @"ゴーレム",
                         @"life" : @(110),
-                        @"exp" : @(40),
+                        @"exp" : @(80),
                         @"speed_dx" : @(0),
                         @"speed_dy" : @(-35.0f),
                         @"attacked" : @(0),

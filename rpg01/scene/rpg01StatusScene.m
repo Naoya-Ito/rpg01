@@ -50,7 +50,7 @@
     // ステータスアップボタン
     if(canLVUP){
         SKLabelNode *expLabel = [SKLabelNode labelNodeWithFontNamed:FONT_NORMAL];
-        expLabel.text = [NSString stringWithFormat:@"LVupに必要な金：%d", exp];
+        expLabel.text = [NSString stringWithFormat:@"LVup費用：%d", exp];
         expLabel.name = @"exp";
         expLabel.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 180.0f);
         [self addChild:expLabel];
@@ -136,7 +136,7 @@
     goldLabel.text = [NSString stringWithFormat:@"所持金：%@", _params[@"gold"]];
 
     SKLabelNode *expLabel = (SKLabelNode *)[self childNodeWithName:@"exp"];
-    expLabel.text = [NSString stringWithFormat:@"LVup必要GOLD：%d", exp];
+    expLabel.text = [NSString stringWithFormat:@"LVup費用：%d", exp];
 
     SKLabelNode *paramLabel = (SKLabelNode *)[self childNodeWithName:param];
     if([param isEqualToString:@"HP"]){

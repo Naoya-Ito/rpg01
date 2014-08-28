@@ -23,4 +23,5 @@
 - (void)playBGM:(NSString*)name type:(NSString *)type;
 - (void)stopBGM;
 - (void)outputGold;
+- (NSArray *)_textures:(NSString *)name withRow:(int)row cols:(int)cols;
 @end

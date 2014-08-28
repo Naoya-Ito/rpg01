@@ -3,4 +3,5 @@
 
 @interface rpg01GhostNode : SKSpriteNode
 + (id)ghost;
++ (id)blueGhost;
 @end

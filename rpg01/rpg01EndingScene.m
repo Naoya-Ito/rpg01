@@ -16,24 +16,9 @@
     SKSpriteNode *heroin = [SKSpriteNode spriteNodeWithTexture:textures.firstObject];
     heroin.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
     [self addChild:heroin];
-    
-    
 }
 
-- (NSArray *)_textures:(NSString *)name withRow:(int)row cols:(int)cols {
-    SKTexture *texture = [SKTexture textureWithImageNamed:name];
-    
-    NSMutableArray *textures = @[].mutableCopy;
-    for (int col = 0; col < cols; col++) {
-        CGFloat x = col * 32 / texture.size.width;
-        CGFloat y = row * 32/ texture.size.height;
-        CGFloat w = 32 / texture.size.width;
-        CGFloat h = 32 / texture.size.height;
-        SKTexture *t = [SKTexture textureWithRect:CGRectMake(x, y, w, h) inTexture:texture];
-        [textures addObject:t];
-    }
-    return textures;
-}
+
 
 - (SKMessageNode *)messageNode {
     return (SKMessageNode *)[self childNodeWithName:kMessageName];
