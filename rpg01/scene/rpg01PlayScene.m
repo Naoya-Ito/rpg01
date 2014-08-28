@@ -51,6 +51,7 @@ const int FIRE_COST = 5;
     BOOL _isMidare;
     BOOL _isSpeed;
     BOOL _isBlue;
+    BOOL _canMagic;
 }
 
 -(void)createSceneContents{
@@ -65,6 +66,7 @@ const int FIRE_COST = 5;
     _direction = @"right";
     _onceFlag = NO;
     _displayedLife = NO;
+    _canMagic = YES;
     
     _hp = [_params[@"HP"] intValue];
     _MAXHP = [_params[@"HP"] intValue];
@@ -405,7 +407,12 @@ const int FIRE_COST = 5;
         return;
     }
     [self _changeMP: - FIRE_COST];
-    
+    if(_mp < FIRE_COST && _canMagic){
+        SKSpriteNode *fireButton = (SKSpriteNode *)[self childNodeWithName:@"fireButton"];
+        fireButton.texture = [SKTexture textureWithImageNamed:@"fireButtonOff"];
+        _canMagic = NO;
+    }
+        
     rpg01FireNode *fire;
     if(_isBlue){
         fire = [rpg01FireNode blueFire:from];
@@ -532,6 +539,12 @@ const int FIRE_COST = 5;
 - (void)_attack:(SKNode *)weapon enemy:(SKNode *)enemy {
     // MPを1回復
     [self _changeMP:1];
+    if(_mp >= FIRE_COST && !_canMagic){
+        SKSpriteNode *fireButton = (SKSpriteNode *)[self childNodeWithName:@"fireButton"];
+        fireButton.texture = [SKTexture textureWithImageNamed:@"fireButton"];
+        _canMagic = YES;
+    }
+
     
     // 火花を散らす
     NSString *sparkPath = [[NSBundle mainBundle] pathForResource:@"spark" ofType:@"sks"];
